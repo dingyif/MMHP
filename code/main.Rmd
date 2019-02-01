@@ -1,0 +1,2311 @@
+---
+title: "Main R Notebook"
+author: "Jing Wu, Tian Zheng"
+date: "1/16/2018"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 3
+    toc_float:
+      collapsed: false
+      smooth_scroll: false
+    number_sections: true
+    code_folding: hide
+---
+
+# Simulation experiments
+
+Load packages,source code, change directory and define global variables.
+```{r, message = FALSE}
+###############################################################################
+#Load packages,source code, change directory and define global variables
+###############################################################################
+if (!require("pacman")) install.packages("pacman")
+pacman::p_load(rstan, SPIn, knitr, MMHP, beeswarm)
+
+#Change directory
+setwd("~/Dropbox/Research/JASA_1/code")
+
+#Specify directory for saving simulation and model fitting data (change based on your own system)
+data_path_input = '../../../../Google Drive/paper_data/simulation/'
+data_path = '../../../../Google Drive/paper_data_2/simulation/'
+
+#Specify directory for saving plots
+plot_path = '../figures/'
+
+#Load source code from ../lib/ 
+source('../lib/mmhp.R')
+source('../lib/mmpp.R')
+source('../lib/handelExceptionMmhpsd.R')
+source('../lib/intensity_plot.R')
+
+#Define global variables
+par_name <- c("lambda0","lambda1","alpha","beta","q1","q2")
+no_vec_events <- c(50,100,200,500)
+```
+
+## Estimation of parameters
+
+To validate the accuracy of estimating parameters using our method, simulate 50 independent MMHPs including 50/100/200/500 events with parameter value $\lambda_0=1$, $\alpha=1.6$, $\beta=0.9$, $q_1=0.2$, $q_2=0.4$, $\delta = (\frac{2}{3}, \frac{1}{3})^T$. The simulation procedure is based on *thinning theorem*. Then fit the data in `mmhp.stan`. The simulated data and fitting result will be saved in `data_path` folder specified in the initial chunk and as `common_pars_result_numberOfEvents.Rdata`.
+```{r, eval=FALSE}
+object <-list(lambda0=0.9, lambda1=1.1, alpha=0.8, beta=1.2, q1=0.4, q2=0.2, delta=c(1/3,2/3))
+no_sim <- 50
+counter <- 0
+for(i in 1:50){
+  if(is.null(common.pars.processes[i][[1]])){
+    print(i)
+    counter <- counter + 1
+  }
+}
+for(i in 1:no_sim){
+   print(i)
+   common.pars.processes[i][[1]] <- simulate.mmhp(object,nsim=no_events)
+}
+```
+
+```{r, eval=FALSE}
+object <-list(lambda0=1, lambda1=1.1, alpha=2, beta=1.2, q1=0.4, q2=0.1, delta=c(1/5,4/5))
+no_sim <- 50
+
+for(no_events in no_vec_events[1]){
+  common.pars.processes <- rep(list(),no_sim)
+  common.pars.stan.result <- rep(list(),no_sim)
+  common.pars.stan.time <- rep(NA,no_sim)
+  
+  for(i in 1:no_sim){
+    common.pars.processes[i][[1]] <- simulate.mmhp(object,nsim=no_events)
+    current_N <- length(common.pars.processes[i][[1]]$tau)
+    current_interevent <- common.pars.processes[i][[1]]$tau[-1]-common.pars.processes[i][[1]]$tau[-current_N]
+    start_time <- Sys.time()
+    fit_mmhp <- stan("../lib/mmhp.stan", 
+                     data=list(N=current_N-1, interevent=current_interevent,  
+                               event=cumsum(current_interevent)),
+                     refresh = -1, iter=1000, chains=4, control=list(adapt_delta=0.95))
+    end_time <- Sys.time()
+    common.pars.stan.time[i] <- end_time-start_time
+    sim_mmhp <- extract(fit_mmhp)
+    common.pars.stan.result[i][[1]] <- list(lambda0=sim_mmhp$lambda0,
+                                            lambda1=sim_mmhp$lambda1,
+                                            alpha=sim_mmhp$alpha,
+                                            beta=sim_mmhp$beta,
+                                            q1=sim_mmhp$q1,
+                                            q2=sim_mmhp$q2,
+                                            zt=sim_mmhp$zt, pzt=sim_mmhp$pzt,
+                                            zt_v=sim_mmhp$zt_v, lp__=sim_mmhp$lp__)
+  }
+  save(common.pars.processes,common.pars.stan.result,common.pars.stan.time,object,file=paste(data_path,"common_pars_result_",no_events,".Rdata",sep=""))
+}
+```
+
+## change!!!!
+```{r, eval=FALSE}
+object <-list(lambda0=0.9, lambda1=1.1, alpha=0.8, beta=1.2, q1=0.4, q2=0.2, delta=c(1/3,2/3))
+
+for(no_events in no_vec_events[1]){
+  #load(paste(data_path,"common_pars_result_",no_events,".Rdata",sep=""))
+  #common.pars.processes <- rep(list(),50)
+  common.pars.stan.result <- rep(list(),50)
+  common.pars.stan.time <- rep(NA,50)
+  
+  for(i in 1:50){ 
+    #common.pars.processes[i][[1]] <- simulate.mmhp(object,nsim=no_events)
+    current_N <- length(common.pars.processes[i][[1]]$tau)
+    current_interevent <- common.pars.processes[i][[1]]$tau[-1]-common.pars.processes[i][[1]]$tau[-current_N]
+    start_time <- Sys.time()
+    fit_mmhp <- stan("../lib/mmhp.stan", 
+                     data=list(N=current_N-1, interevent=current_interevent,
+                               event=cumsum(current_interevent)),
+                     refresh = -1, iter=1000, chains=4, control=list(adapt_delta=0.95))
+    end_time <- Sys.time()
+    common.pars.stan.time[i] <- end_time-start_time
+    sim_mmhp <- extract(fit_mmhp)
+    common.pars.stan.result[i][[1]] <- list(lambda0=sim_mmhp$lambda0,
+                                            lambda1=sim_mmhp$lambda1,
+                                            alpha=sim_mmhp$alpha,beta=sim_mmhp$beta,
+                                            q1=sim_mmhp$q1, q2=sim_mmhp$q2,
+                                            zt=sim_mmhp$zt,pzt=sim_mmhp$pzt,
+                                            zt_v=sim_mmhp$zt_v,lp__=sim_mmhp$lp__)
+  }
+  save(common.pars.processes,common.pars.stan.result,common.pars.stan.time,object,file=paste(data_path,"common_pars_result_",no_events,".Rdata",sep=""))
+}
+```
+
+### [Fig] Estimation of parameters for simulated MMHPs.
+
+```{r} 
+for(no_events in no_vec_events[1]){
+  load(paste(data_path,"common_pars_result_",no_events,".Rdata",sep=""))
+  common.pars.array <- array(NA,dim=c(50,6,3))
+  for(i in 1:50){
+    for(j in 1:6){
+      common.pars.array[i,j,1] <- median(unlist(common.pars.stan.result[i][[1]][par_name[j]])[1001:2000])
+      common.pars.array[i,j,2] <- min(unlist(common.pars.stan.result[i][[1]][par_name[j]])[1001:2000])
+      common.pars.array[i,j,3] <- max(unlist(common.pars.stan.result[i][[1]][par_name[j]])[1001:2000])
+    }
+  }
+  ylim_ub <- c(3,2,2,1.2,4,5)
+  xlim_ub <- c(2,4,5,5,3,3)
+  par_name_expression <- c(expression(lambda[0]),expression(lambda[1]),expression(alpha),expression(beta),expression(q[1]),expression(q[2]))
+
+  for(j in c(1:6)){
+    png(paste(plot_path,"sim_par_",no_events,"_",par_name[j],".png",sep=""), height=420, width=400)
+    par(mfrow=c(1,1),tcl=0.2,mgp=c(1.8,0.5,0),
+        mar=c(5.25,4.5,3.5,0.5))
+    lowerLimit <- min(common.pars.array[,j,2])
+    upperLimit <- xlim_ub[j]
+    plot(1,4,xlim=c(0,xlim_ub[j]),ylim=c(0,ylim_ub[j]), type="n",xlab="",ylab="Density",cex.lab=4,xaxt="n",yaxt="n")
+    title(paste("(",letters[j],")",sep=""),line=1,cex.main=4)
+    axis(2,cex.axis=2,lwd=0,lwd.ticks=0,pos=-0.08)
+    axis(2,label=FALSE,lwd=0,lwd.ticks=1)
+    axis(1,cex.axis=2,lwd=0,lwd.ticks=1)
+    mtext(par_name_expression[j], side=1, line=4.4, cex=4.5)
+    
+    for(i in 1:50){
+      lines(density(unlist(common.pars.stan.result[i][[1]][par_name[j]])[1001:2000]),col="grey",cex=0.6,lwd=0.8)
+    }
+    
+    if(j==1){
+      curve(1/(sqrt(2*pi)*x)*exp(-(log(x)^2/2)),0,upperLimit,add=TRUE,col="blue",lwd=4.5)
+    }else if(j==2){
+      x_plot <- seq(0,4,length.out = 1000)
+      integrand_f <- function(x) 1/(sqrt(2*pi)*x)*exp(-(log(x)^2/2))
+      y_plot <- sapply(x_plot,function(x) integrate(integrand_f, lower = x, upper = Inf)$value) 
+      lines(x_plot,y_plot,col="blue",lwd=4.5)
+    }else if(j==3){
+      curve(1/(sqrt(2*pi)*5)*exp(-x^2/2/5**2),0,upperLimit,add=TRUE,col="blue",lwd=4.5)
+    }else if(j==4){
+      curve(1/(sqrt(2*pi)*x)*exp(-(log(x)^2/2)),0,upperLimit,add=TRUE,col="blue",lwd=4.5)
+    }else{
+      curve(1/(sqrt(2*pi)*x)*exp(-((log(x)+1)^2/2)),0,upperLimit,add=TRUE,col="blue",lwd=4.5)
+    }
+    abline(v=object[[j]],col="red",lwd=5.5)
+    points(mean(common.pars.array[,j,1]),0,col="purple",cex=2.8,pch=16)
+    spin_result <- SPIn(common.pars.array[,j,1])$spin
+    segments(x0=spin_result[1],spin_result[2],y0=0,col="purple",lwd=5.5)
+    segments(x0=spin_result[1],y0=0,y1=0.02,col="purple",lwd=5.5)
+    segments(x0=spin_result[2],y0=0,y1=0.02,col="purple",lwd=5.5)
+    invisible(dev.off())
+  }
+}
+```
+
+![](../figures/sim_par_50_lambda0.png){ width=30% } ![](../figures/sim_par_50_alpha.png){ width=30% } ![](../figures/sim_par_50_beta.png){ width=30% } 
+![](../figures/sim_par_50_q1.png){ width=30% } ![](../figures/sim_par_50_q2.png){ width=30% }
+
+## Estimation of latent Markov processes
+
+To validate the accuracy of estimating latent state trajectory using our method, conditioning on the same latent Makov process with parameter $q_1=0.2$, $q_2=0.4$, $\delta = (\frac{2}{3}, \frac{1}{3})^T$, simulate 50 independent MMHPs including 500 events with parameter value $\lambda_0=1$, $\alpha=1.6$, $\beta=0.9$. The simulation procedure is based on *thinning theorem*. 
+
+!!!change
+```{r, eval=FALSE}
+#object <-list(lambda0=0.9, lambda1=1.1, alpha=1.6, beta=0.9, q1=0.2,q2=0.4,delta=c(2/3,1/3))
+object <-list(lambda0=0.8, lambda1=1, alpha=1.6, beta=0.9, q1=0.2, q2=0.4, delta=c(2/3,1/3))
+## Generating 500 events
+no_events <- 500
+#test.mmhp.fix <- simulate.mmhp(object, nsim=no_events)
+
+fixed.state.processes <- rep(list(),50)
+fixed.state.stan.result <- rep(list(),50)
+fixed.state.stan.time <- rep(NA,50)
+
+for(i in 1:50){
+  fixed.state.processes[i][[1]] <- simulate.mmhp.given.state(object, states=list(x=test.mmhp.fix$x,z=test.mmhp.fix$z),ending=tail(test.mmhp.fix$tau,1),max.nsim=1000)
+}
+
+for(i in 1:50){
+  print(i)
+  start_time <- Sys.time()
+  current_N <- length(fixed.state.processes[i][[1]]$tau)
+  current_interevent <- fixed.state.processes[i][[1]]$tau[-1]-fixed.state.processes[i][[1]]$tau[-current_N]
+  fit_mmhp <- stan("../lib/mmhp.stan", 
+                   data=list(N=current_N-1, interevent=current_interevent,event=cumsum(current_interevent)),
+                   refresh = -1, iter=1000, chains=4, control = list(adapt_delta=0.95))
+  end_time <- Sys.time()
+  fixed.state.stan.time[i] <- end_time-start_time
+  fixed.state.stan.result[i][[1]] <- extract(fit_mmhp)
+}
+save(fixed.state.processes,fixed.state.stan.result,fixed.state.stan.time,object,test.mmhp.fix,file=paste(data_path,"fixed_state_stan_result_",no_events,".Rdata",sep=""))
+```
+
+The scenarios with 50/100/200 events are generated by conditioning on truncated previous latent process (truncation length of latent process is according to the average number of emission events). Then fit the data in `mmhp.stan`. The simulated data and fitting result will be saved in `data_path` folder specified in the initial chunk and as `fixed_state_stan_result_numberOfEvents.Rdata`.
+
+##!!!!!!!change
+```{r, eval=FALSE}
+object <-list(lambda0=0.8, lambda1=1, alpha=1.6, beta=0.9, q1=0.2, q2=0.4, delta=c(2/3,1/3))
+#load(paste(data_path,"fixed_state_stan_result_500.Rdata",sep=""))
+horizon_time_vec <- c(7.5,10,13)
+
+for(l in c(1)){
+  no_events <- no_vec_events[l]
+  horizon_time <- horizon_time_vec[l]
+  horizon_x <- max(which(test.mmhp.fix$x<=horizon_time))+1
+  horizon_tau <- max(which(test.mmhp.fix$tau<=horizon_time))
+  new.test.mmhp.fix <- list(x=test.mmhp.fix$x[1:horizon_x],
+                            z=test.mmhp.fix$z[1:horizon_x],
+                            tau=test.mmhp.fix$tau[1:horizon_tau],
+                            zt=test.mmhp.fix$zt[1:horizon_tau])
+  
+  new.fixed.state.processes <- rep(list(),50)
+  fixed.state.stan.result <- rep(list(),50)
+  fixed.state.stan.time <- rep(NA,50)
+
+  for(i in 1:5){
+    print(i)
+    horizon_tau <- max(which(fixed.state.processes[i][[1]]$tau<=horizon_time))
+    if(horizon_tau<20){
+      new.fixed.state.processes[i][[1]] <- simulate.mmhp.given.state(object, states=list(x=new.test.mmhp.fix$x,
+                                                                                         z=new.test.mmhp.fix$z),
+                                                                     ending=tail(new.test.mmhp.fix$tau,1),max.nsim=300)
+    }else{
+      new.fixed.state.processes[i][[1]] <- list(tau=fixed.state.processes[i][[1]]$tau[1:horizon_tau],
+                                                zt=fixed.state.processes[i][[1]]$zt[1:horizon_tau])
+    }
+    current_N <- length(new.fixed.state.processes[i][[1]]$tau)
+    current_interevent <- new.fixed.state.processes[i][[1]]$tau[-1]-new.fixed.state.processes[i][[1]]$tau[-current_N]
+    start_time <- Sys.time()
+    fit_mmhp <- stan("../lib/mmhp.stan", 
+                     data=list(N=current_N-1,interevent=current_interevent,event=cumsum(current_interevent)),
+                     refresh = -1, iter=1000, chains=4, control = list(adapt_delta=0.95))
+    end_time <- Sys.time()
+    fixed.state.stan.time[i] <- end_time-start_time
+    fixed.state.stan.result[i][[1]] <- extract(fit_mmhp)
+  }
+  fixed.state.processes <- new.fixed.state.processes
+  test.mmhp.fix <- new.test.mmhp.fix
+  save(fixed.state.processes,fixed.state.stan.result,fixed.state.stan.time,test.mmhp.fix,object,file=paste(data_path,"fixed_state_stan_result_",no_events,".Rdata",sep=""))
+}
+```
+
+
+```{r, eval=FALSE}
+load(paste(data_path,"fixed_state_stan_result_500.Rdata",sep=""))
+horizon_time_vec <- c(7.5,10,13)
+
+for(l in c(1:3)){
+  no_events <- no_vec_events[l]
+  horizon_time <- horizon_time_vec[l]
+  horizon_x <- max(which(test.mmhp.fix$x<=horizon_time))+1
+  horizon_tau <- max(which(test.mmhp.fix$tau<=horizon_time))
+  new.test.mmhp.fix <- list(x=test.mmhp.fix$x[1:horizon_x],
+                            z=test.mmhp.fix$z[1:horizon_x],
+                            tau=test.mmhp.fix$tau[1:horizon_tau],
+                            zt=test.mmhp.fix$zt[1:horizon_tau])
+  
+  new.fixed.state.processes <- rep(list(),50)
+  fixed.state.stan.result <- rep(list(),50)
+  fixed.state.stan.time <- rep(NA,50)
+
+  for(i in 1:50){
+    horizon_tau <- max(which(fixed.state.processes[i][[1]]$tau<=horizon_time))
+    if(horizon_tau<20){
+      new.fixed.state.processes[i][[1]] <- simulate.mmhp.given.state(object, states=list(x=new.test.mmhp.fix$x,
+                                                                                         z=new.test.mmhp.fix$z),
+                                                                     ending=tail(new.test.mmhp.fix$tau,1),max.nsim=300)
+    }else{
+      new.fixed.state.processes[i][[1]] <- list(tau=fixed.state.processes[i][[1]]$tau[1:horizon_tau],
+                                         zt=fixed.state.processes[i][[1]]$zt[1:horizon_tau])
+    }
+    current_N <- length(new.fixed.state.processes[i][[1]]$tau)
+    current_interevent <- new.fixed.state.processes[i][[1]]$tau[-1]-new.fixed.state.processes[i][[1]]$tau[-current_N]
+    start_time <- Sys.time()
+    fit_mmhp <- stan("../lib/mmhp.stan", 
+                     data=list(N=current_N-1,interevent=current_interevent),
+                     refresh = -1, iter=1000, chains=4, control = list(adapt_delta=0.95))
+    end_time <- Sys.time()
+    fixed.state.stan.time[i] <- end_time-start_time
+    fixed.state.stan.result[i][[1]] <- extract(fit_mmhp)
+  }
+  fixed.state.processes <- new.fixed.state.processes
+  test.mmhp.fix <- new.test.mmhp.fix
+  save(fixed.state.processes,fixed.state.stan.result,fixed.state.stan.time,test.mmhp.fix,object,file=paste(data_path,"fixed_state_stan_result_",no_events,".Rdata",sep=""))
+}
+```
+
+### [Fig] Estimation of latent Markov processes
+
+#### (a) Estimated MMHP latent trajectory
+
+```{r, eval=FALSE}
+png(paste(plot_path,"sim_state_plots_mmhp.png",sep=""), height=500, width=1000)
+par(mfrow=c(1,1),tcl=0.2,mgp=c(1.7,0,0),
+    mar=c(3.5,6.7,3,0.8))
+plot(1,4,xlim=c(0.27,23),ylim=c(-0.5,9), type="n",xlab="Time",ylab="",xaxt="n",yaxt="n",cex.lab=2.5,bty="n")
+title("(a)",line=1,cex.main=3)
+axis(2,at=c(0,1,2.5,3.5,5,6,7.5,8.5),labels=FALSE,cex.lab=2,las=2,lwd=0,lwd.ticks=1)
+axis(1,at=seq(0,20,length.out=5),labels=FALSE,cex.lab=2,las=2,lwd=0,lwd.ticks=1,line=-0.7)
+text(-1.8, y=c(0,1,2.5,3.5,5,6,7.5,8.5), labels=paste(rep(c("        ","state"),4),rep(c(0,1),4)," "), cex=2.5, srt=0, xpd=TRUE)
+text(seq(0,20,length.out=5), y=-1, labels=seq(0,20,length.out=5), cex=2, srt=0, xpd=TRUE)
+par_name <- c("lambda0","lambda1","alpha","beta","q1","q2")
+n_sim <- 50
+for(l in c(1:4)){
+  no_events <- no_vec_events[l]
+  load(paste(data_path,"fixed_state_stan_result_",no_events,".Rdata",sep=""))
+  fixed.state.array <- matrix(NA,nrow=n_sim,ncol=6)
+  fixed.state.est.latent <- matrix(rep(list(),n_sim*3),nrow=n_sim,ncol=3)
+  fixed.state.latent.fun <- matrix(rep(list(),n_sim*2),nrow=n_sim,ncol=2)
+  
+  for(i in 1:n_sim){
+    for(j in 1:6){
+      fixed.state.array[i,j] <- mean(unlist(fixed.state.stan.result[i][[1]][par_name[j]])[1001:2000])
+    }
+    #estimate latent state
+    test.mmhp <- fixed.state.processes[i][[1]]
+    object_hat <- list(lambda0=fixed.state.array[i,1], lambda1=fixed.state.array[i,2], alpha=fixed.state.array[i,3], beta=fixed.state.array[i,4], q1=fixed.state.array[i,5], q2=fixed.state.array[i,6])
+    test.latent <- stepfun(test.mmhp.fix$x[-1],test.mmhp.fix$z)
+    time.segment <- seq(test.mmhp$tau[2],tail(test.mmhp$tau,1),length.out=2000)
+    time.segment.delta <- time.segment[2]-time.segment[1]
+    
+    #2 estimation methods
+    #fixed.state.est.latent[i,1][[1]] <- apply(fixed.state.stan.result[i][[1]]$zt_v[1001:2000,],2,mean)
+    fixed.state.est.latent[i,2][[1]] <- ifelse(apply(fixed.state.stan.result[i][[1]]$zt_v[1001:2000,],2,function(x) sum(x==1)) >500,rep(1,1000),rep(2,1000))
+    
+    #preperation for step function
+    fixed.state.est.latent[i,3][[1]] <- modifiedLatentTrajectory(params=object_hat, interevent = test.mmhp$tau[-1]-test.mmhp$tau[-length(test.mmhp$tau)], zt = fixed.state.est.latent[i,2][[1]])
+    
+    #interpolated function for each method
+    fixed.state.latent.fun[i,1][[1]] <- approxfun(x=test.mmhp$tau[-1], y=fixed.state.est.latent[i,1][[1]],rule=2)
+    fixed.state.latent.fun[i,2][[1]] <- stepfun(fixed.state.est.latent[i,3][[1]]$x.hat[-1],fixed.state.est.latent[i,3][[1]]$z.hat)
+  }
+  
+  #plot
+  time.segment <- seq(0,tail(test.mmhp.fix$tau,1),length.out = 5000)
+  draw.start<-1
+  draw.end<-length(test.mmhp.fix$tau)
+  draw.true.x<-which(test.mmhp.fix$x>test.mmhp.fix$tau[draw.start]&test.mmhp.fix$x<test.mmhp.fix$tau[draw.end])
+  draw.true.time<-c(test.mmhp.fix$tau[draw.start],test.mmhp.fix$x[draw.true.x],test.mmhp.fix$tau[draw.end])
+  draw.true.state<-3-c(test.mmhp.fix$z[head(draw.true.x,1)-1],test.mmhp.fix$z[draw.true.x],test.mmhp.fix$z[tail(draw.true.x,1)])
+  
+  fun.result <- array(NA,dim=c(n_sim,5000,2))
+  for(i in 1:n_sim){
+    for(j in 1:2){
+      fun.result[i,,j] <- fixed.state.latent.fun[i,j][[1]](time.segment)
+    }
+  }
+  
+  change <- 9-l*2.5
+  cur_method <- 2
+  for(i in 1:n_sim){
+    state_mmhp <- fun.result[i,,2] 
+    lines(3-state_mmhp+change~time.segment, type="l", 
+          col=rgb(169,169,169,maxColorValue=255), lwd=0.35)
+  }
+  
+  lower.ci <- apply(fun.result[,,cur_method],2,mean)-apply(fun.result[,,2],2,sd)
+  lower.ci <- ifelse(lower.ci<1,rep(1,length(lower.ci)),lower.ci)
+  upper.ci <- apply(fun.result[,,2],2,mean)+apply(fun.result[,,2],2,sd)
+  upper.ci <- ifelse(upper.ci>2,rep(2,length(upper.ci)),upper.ci)
+  lines(3-apply(fun.result[,,2],2,mean)+change~time.segment,type="l",col="blue",lwd=4)
+  polygon(c(time.segment,rev(time.segment)),
+          c(3-lower.ci+change,rev(3-upper.ci+change)),
+          col=rgb(0,0,225,alpha=50,maxColorValue=255),border=FALSE)
+  
+  lines(draw.true.state+change~draw.true.time,type="s",col="grey27",lwd=4.5)
+  segments(x0=-0.5,y0=7-(l-1)*2.5,y1=9-(l-1)*2.5)
+  segments(x0=c(22.5,16,14.3,11)[5-l]+1.25,y0=7-(l-1)*2.5,y1=9-(l-1)*2.5)
+  segments(x0=-0.5,x1=c(22.5,16,14.3,11)[5-l]+1.25,y0=7-(l-1)*2.5)
+  segments(x0=-0.5,x1=c(22.5,16,14.3,11)[5-l]+1.25,y0=9-(l-1)*2.5)
+}
+
+legend(15,10,c("truth","MMHP mean","confidence band","individual process"),
+       lty=1, lwd=c(5,5,20,5), x.intersp=0.3,
+       col=c(rgb(0,0,0),rgb(0,0,225,maxColorValue=255),
+             rgb(0,0,225,alpha=100,maxColorValue=255),rgb(169,169,169,maxColorValue=255)),
+       bg=rgb(0,0,0,alpha=0), bty="n",cex=2.75,seg.len=0.85)
+text(c(22.5,15,12.5,9.5),c(0.5,3,5.5,8),paste("M=",rev(no_vec_events),sep=""),cex=2.5)
+
+invisible(dev.off())
+```
+
+![](../figures/sim_state_plots_mmhp.png)
+
+#### (c) Estimated MMPP latent trajectory
+
+Fitting the above data in MMPP model.
+```{r, eval=FALSE}
+
+for(l in c(1:length(no_vec_events)){
+  no_events <- no_vec_events[l]
+  load(paste(data_path,"fixed_state_stan_result_",no_events,".Rdata",sep=""))
+
+  for(i in 1:50){
+    current_N <- length(fixed.state.processes[i][[1]]$tau)
+    current_interevent <- fixed.state.processes[i][[1]]$tau[-1]-fixed.state.processes[i][[1]]$tau[-current_N]
+    fit_mmpp <- stan("../lib/mmpp.stan",
+                     data=list(N=current_N-1,interevent=current_interevent),
+                     refresh = -1, iter=1000, chains=4, control = list(adapt_delta=0.95))
+    fixed.state.stan.result[i][[1]] <- extract(fit_mmpp)
+  }
+  
+  save(fixed.state.processes,fixed.state.stan.result,test.mmhp.fix,object,file=paste(data_path,"mmpp_fixed_state_stan_result_",no_events,".Rdata",sep=""))
+}
+```
+
+Plot the latent trajectory inferred by MMPP model.
+```{r}
+png(paste(plot_path,"sim_state_plots_mmpp.png",sep=""), height=500, width=1000)
+par(mfrow=c(1,1),tcl=0.2,mgp=c(1.7,0,0),
+    mar=c(3.5,6.7,3,0.8))
+plot(1,4,xlim=c(0.27,23),ylim=c(-0.5,9), type="n",xlab="Time",ylab="",xaxt="n",yaxt="n",cex.lab=2.5,bty="n")
+title("(c)",line=1,cex.main=3)
+axis(2,at=c(0,1,2.5,3.5,5,6,7.5,8.5),labels=FALSE,cex.lab=2,las=2,lwd=0,lwd.ticks=1)
+axis(1,at=seq(0,20,length.out=5),labels=FALSE,cex.lab=2,las=2,lwd=0,lwd.ticks=1,line=-0.7)
+text(-1.8, y=c(0,1,2.5,3.5,5,6,7.5,8.5), labels=paste(rep(c("        ","state"),4),rep(c(0,1),4)," "), cex=2.5, srt=0, xpd=TRUE)
+text(seq(0,20,length.out=5), y=-1, labels=seq(0,20,length.out=5), cex=2, srt=0, xpd=TRUE)
+mmpp_par_name <- c("lambda0","c","q1","q2")
+
+for(l in c(1:4)){
+  no_events <- no_vec_events[l]
+  load(paste(data_path,"mmpp_fixed_state_stan_result_",no_events,".Rdata",sep=""))
+  fixed.state.array <- matrix(NA,nrow=50,ncol=4)
+  fixed.state.est.latent <- matrix(rep(list(),50*3),nrow=50,ncol=3)
+  fixed.state.latent.fun <- matrix(rep(list(),50*2),nrow=50,ncol=2)
+  
+  for(i in 1:50){
+    for(j in 1:4){
+      fixed.state.array[i,j] <- mean(unlist(fixed.state.stan.result[i][[1]][mmpp_par_name[j]])[1001:2000])
+    }
+    
+    #estimate latent state
+    test.mmhp <- fixed.state.processes[i][[1]]
+    object_hat <- list(lambda0=fixed.state.array[i,1], c=fixed.state.array[i,2], q1=fixed.state.array[i,3], q2=fixed.state.array[i,4])
+    test.latent <- stepfun(test.mmhp.fix$x[-1],test.mmhp.fix$z)
+    time.segment <- seq(test.mmhp$tau[2],tail(test.mmhp$tau,1),length.out=2000)
+    time.segment.delta <- time.segment[2]-time.segment[1]
+    
+    #2 estimation methods
+    fixed.state.est.latent[i,1][[1]] <- apply(fixed.state.stan.result[i][[1]]$zt_v[1001:2000,],2,mean)
+    fixed.state.est.latent[i,2][[1]] <- ifelse(apply(fixed.state.stan.result[i][[1]]$zt_v[1001:2000,],2,function(x) sum(x==1)) >500,rep(1,1000),rep(2,1000))
+    
+    #preperation for step function
+    fixed.state.est.latent[i,3][[1]] <- mmppModifiedLatentTrajectory(params=object_hat, interevent = test.mmhp$tau[-1]-test.mmhp$tau[-length(test.mmhp$tau)], zt = fixed.state.est.latent[i,2][[1]])
+    
+    #interpolated function for each method
+    fixed.state.latent.fun[i,1][[1]] <- approxfun(x=test.mmhp$tau[-1], y=fixed.state.est.latent[i,1][[1]],rule=2)
+    fixed.state.latent.fun[i,2][[1]] <- stepfun(fixed.state.est.latent[i,3][[1]]$x.hat[-1],fixed.state.est.latent[i,3][[1]]$z.hat)
+  }
+  
+  #plot
+  time.segment <- seq(0,tail(test.mmhp.fix$tau,1),length.out = 5000)
+  draw.start<-1
+  draw.end<-length(test.mmhp.fix$tau)
+  draw.true.x<-which(test.mmhp.fix$x>test.mmhp.fix$tau[draw.start]&test.mmhp.fix$x<test.mmhp.fix$tau[draw.end])
+  draw.true.time<-c(test.mmhp.fix$tau[draw.start],test.mmhp.fix$x[draw.true.x],test.mmhp.fix$tau[draw.end])
+  draw.true.state<-3-c(test.mmhp.fix$z[head(draw.true.x,1)-1],test.mmhp.fix$z[draw.true.x],test.mmhp.fix$z[tail(draw.true.x,1)])
+  
+  fun.result <- array(NA,dim=c(50,5000,2))
+  for(i in 1:50){
+    for(j in 1:2){
+      fun.result[i,,j] <- fixed.state.latent.fun[i,j][[1]](time.segment)
+    }
+  }
+  
+  change <- 9-l*2.5
+  
+  for(i in 1:50){
+    state_mmhp <- fun.result[i,,2] #2-(state_estimation<0.5)
+    lines(3-state_mmhp+change~time.segment, type="l", 
+          col=rgb(169,169,169,maxColorValue=255), lwd=0.35)
+  }
+  
+  lower.ci <- apply(fun.result[,,2],2,mean)-apply(fun.result[,,2],2,sd)
+  lower.ci <- ifelse(lower.ci<1,rep(1,length(lower.ci)),lower.ci)
+  upper.ci <- apply(fun.result[,,2],2,mean)+apply(fun.result[,,2],2,sd)
+  upper.ci <- ifelse(upper.ci>2,rep(2,length(upper.ci)),upper.ci)
+  lines(3-apply(fun.result[,,2],2,mean)+change~time.segment,type="l",col="blue",lwd=4)
+  polygon(c(time.segment,rev(time.segment)),
+          c(3-lower.ci+change,rev(3-upper.ci+change)),
+          col=rgb(0,0,225,alpha=50,maxColorValue=255),border=FALSE)
+  
+  lines(draw.true.state+change~draw.true.time,type="s",col="grey27",lwd=4.5)
+  segments(x0=-0.5,y0=7-(l-1)*2.5,y1=9-(l-1)*2.5)
+  segments(x0=c(22.5,16,14.3,11)[5-l]+1.25,y0=7-(l-1)*2.5,y1=9-(l-1)*2.5)
+  segments(x0=-0.5,x1=c(22.5,16,14.3,11)[5-l]+1.25,y0=7-(l-1)*2.5)
+  segments(x0=-0.5,x1=c(22.5,16,14.3,11)[5-l]+1.25,y0=9-(l-1)*2.5)
+}
+
+legend(15,10,c("truth","MMPP mean","confidence band","individual process"),
+       lty=1, lwd=c(5,5,20,5), x.intersp=0.3,
+       col=c(rgb(0,0,0),rgb(0,0,225,maxColorValue=255),
+             rgb(0,0,225,alpha=100,maxColorValue=255),rgb(169,169,169,maxColorValue=255)),
+       bg=rgb(0,0,0,alpha=0), bty="n",cex=2.75,seg.len=0.85)
+text(c(22.5,15,12.5,9.5),c(0.5,3,5.5,8),paste("M=",rev(no_vec_events),sep=""),cex=2.5)
+
+invisible(dev.off())
+```
+
+![](../figures/sim_state_plots_mmpp.png)
+
+#### (d) Estimated MMHPSD latent trajectory
+
+Fitting the above data in MMHPSD model.
+```{r, eval=FALSE}
+for(l in c(1:4)){
+  no_events <- no_vec_events[l]
+  load(paste(data_path,"fixed_state_stan_result_",no_events,".Rdata",sep=""))
+  time_horizon <- tail(test.mmhp.fix$tau,1)
+  time_segment <- 0.05
+  
+  mmhpsd_par_result <- rep(list(),50)
+  for(i in 1:50){
+    event_time <- fixed.state.processes[i][[1]]$tau
+    mmhpsd_par_result[i][[1]] <- handelExceptionMmhpsd(event_time)
+  }
+  
+  state_estimation_matrix <- matrix(0,nrow=50,ncol=1+(round(time_horizon/time_segment)))
+  event_state_estimation <- rep(list(),50)
+  for(i in 1:50){
+    event_time <- fixed.state.processes[i][[1]]$tau
+    for(j in 0:(round(time_horizon/time_segment))){
+      if(j*time_segment>tail(event_time,1)){
+        next
+      }else{
+        est_result <- tryCatch(estSInt(tims = j*time_segment,
+                                       ti = event_time,
+                                       lamb0 = mmhpsd_par_result[i][[1]]$lamb,
+                                       nu0 = mmhpsd_par_result[i][[1]]$nu,
+                                       eta0 = mmhpsd_par_result[i][[1]]$eta,
+                                       Q0 = mmhpsd_par_result[i][[1]]$Q,
+                                       pai0 = mmhpsd_par_result[i][[1]]$pai, fortran = TRUE),
+                               warning = function(w) {0},
+                               error = function(e) {0})
+        state_estimation_matrix[i,j+1] <- ifelse(class(est_result)=="list",est_result$estStat[2],est_result)
+      }
+    }
+    event_state_estimation[i][[1]] <- numeric(length(event_time))
+    for(j in 1:length(event_time)){
+      est_result <- tryCatch(estSInt(tims = event_time[j],
+                                        ti = event_time,
+                                        lamb0 = mmhpsd_par_result[i][[1]]$lamb,
+                                        nu0 = mmhpsd_par_result[i][[1]]$nu,
+                                        eta0 = mmhpsd_par_result[i][[1]]$eta,
+                                        Q0 = mmhpsd_par_result[i][[1]]$Q,
+                                        pai0 = mmhpsd_par_result[i][[1]]$pai, fortran = TRUE),
+                               warning = function(w) {0},
+                               error = function(e) {0})
+      event_state_estimation[i][[1]][j] <- ifelse(class(est_result)=="list",est_result$estStat[2],est_result)
+    }
+  }
+  save(fixed.state.processes,test.mmhp.fix,object,mmhpsd_par_result,state_estimation_matrix,event_state_estimation,
+       file=paste(data_path,"fixed_state_mmhpsd_result_",no_events,".Rdata",sep=""))
+}
+```
+
+Plot the latent trajectory inferred by MMHPSD model.
+```{r}
+png(paste(plot_path,"sim_state_plots_mmhpsd.png",sep=""), height=500, width=1000)
+par(mfrow=c(1,1),tcl=0.2,mgp=c(1.7,0,0),
+    mar=c(3.5,6.7,3,0.8))
+plot(1,4,xlim=c(0.27,23),ylim=c(-0.5,9), type="n",xlab="Time",ylab="",xaxt="n",yaxt="n",cex.lab=2.5,bty="n")
+title("(d)",line=1,cex.main=3)
+axis(2,at=c(0,1,2.5,3.5,5,6,7.5,8.5),labels=FALSE,cex.lab=2,las=2,lwd=0,lwd.ticks=1)
+axis(1,at=seq(0,20,length.out=5),labels=FALSE,cex.lab=2,las=2,lwd=0,lwd.ticks=1,line=-0.7)
+text(-1.8, y=c(0,1,2.5,3.5,5,6,7.5,8.5), labels=paste(rep(c("        ","state"),4),rep(c(0,1),4)," "), cex=2.5, srt=0, xpd=TRUE)
+text(seq(0,20,length.out=5), y=-1, labels=seq(0,20,length.out=5), cex=2, srt=0, xpd=TRUE)
+
+
+for(l in c(1:4)){
+  no_events <- no_vec_events[l]
+  load(paste(data_path,"fixed_state_mmhpsd_result_",no_events,".Rdata",sep=""))
+  
+  time_segment <- 0.05
+  time_horizon <- tail(test.mmhp.fix$tau,1)
+  time.segment <- c(0:round(time_horizon/time_segment))*time_segment
+  draw.start<-1
+  draw.end<-length(test.mmhp.fix$tau)
+  draw.true.x<-which(test.mmhp.fix$x>test.mmhp.fix$tau[draw.start]&test.mmhp.fix$x<test.mmhp.fix$tau[draw.end])
+  draw.true.time<-c(test.mmhp.fix$tau[draw.start],test.mmhp.fix$x[draw.true.x],test.mmhp.fix$tau[draw.end])
+  draw.true.state<-3-c(test.mmhp.fix$z[head(draw.true.x,1)-1],test.mmhp.fix$z[draw.true.x],test.mmhp.fix$z[tail(draw.true.x,1)])
+  
+  change <- 9-l*2.5
+  
+  for(i in 1:50){
+    state_mmhpsd <- 2-(state_estimation_matrix[i,]<0.5)
+    time_mmhpsd <- c(0:(round(time_horizon/time_segment)))*time_segment
+    lines(state_mmhpsd+change~time_mmhpsd, type="l", 
+          col=rgb(169,169,169,maxColorValue=255), lwd=0.35)
+  }
+  
+  lower.ci <- apply(state_estimation_matrix<0.5,2,mean)+apply(state_estimation_matrix<0.5,2,sd)
+  lower.ci <- ifelse(lower.ci>1,rep(1,length(lower.ci)),lower.ci)
+  upper.ci <- apply(state_estimation_matrix<0.5,2,mean)-apply(state_estimation_matrix<0.5,2,sd)
+  upper.ci <- ifelse(upper.ci<0,rep(0,length(upper.ci)),upper.ci)
+  
+  lines(2-apply(state_estimation_matrix<0.5,2,mean)+change~time.segment,type="l",col="blue",lwd=4)
+  polygon(c(time.segment,rev(time.segment)),
+          c(2-lower.ci+change,rev(2-upper.ci+change)),
+          col=rgb(0,0,225,alpha=50,maxColorValue=255),border=FALSE)
+  lines(draw.true.state+change~draw.true.time,type="s",col="grey27",lwd=4.5)
+  segments(x0=-0.5,y0=7-(l-1)*2.5,y1=9-(l-1)*2.5)
+  segments(x0=c(22.5,16,14.3,11)[5-l]+1.25,y0=7-(l-1)*2.5,y1=9-(l-1)*2.5)
+  segments(x0=-0.5,x1=c(22.5,16,14.3,11)[5-l]+1.25,y0=7-(l-1)*2.5)
+  segments(x0=-0.5,x1=c(22.5,16,14.3,11)[5-l]+1.25,y0=9-(l-1)*2.5)
+}
+
+legend(15,10,c("truth","MMHPSD mean","confidence band","individual process"),
+       lty=1, lwd=c(5,5,20,5), x.intersp=0.3,
+       col=c(rgb(0,0,0),rgb(0,0,225,maxColorValue=255),
+             rgb(0,0,225,alpha=100,maxColorValue=255),rgb(169,169,169,maxColorValue=255)),
+       bg=rgb(0,0,0,alpha=0), bty="n",cex=2.75,seg.len=0.85)
+text(c(22.5,15,12.5,9.5),c(0.5,3,5.5,8),paste("M=",rev(no_vec_events),sep=""),cex=2.5)
+invisible(dev.off())
+```
+
+![](../figures/sim_state_plots_mmhpsd.png)
+
+#### (b) Inferred intensity comparison 
+
+!! change data_path_input
+Choose one of the simulated point processes with 100 events and plot the intensity function.
+```{r, eval=FALSE}
+i <- 16
+png(paste(plot_path,"sim_intensity.png",sep=""), height=500, width=1000)
+par(mfrow=c(3,1),tcl=0.2,mgp=c(0.5,0,0),oma=c(3,3.2,2.5,0)+0.5,
+    mar=c(0,0,1,1)+0.1,xpd=TRUE)
+
+#mmhp
+load(paste(data_path,"fixed_state_stan_result_100.Rdata",sep=""))
+mmhp_par_name <- c("lambda0","lambda1","alpha","beta","q1","q2")
+mmhp_par_est <- numeric(length(mmhp_par_name))
+
+test.mmhp <- fixed.state.processes[i][[1]]
+test.mmhp$lambda.max <- 35
+for(j in 1:6){
+  mmhp_par_est[j] <- mean(unlist(fixed.state.stan.result[i][[1]][mmhp_par_name[j]])[1001:2000])
+}
+object_hat <- list(lambda0=mmhp_par_est[1], lambda1=mmhp_par_est[1], alpha=mmhp_par_est[3], beta=mmhp_par_est[4], q1=mmhp_par_est[5], q2=mmhp_par_est[6])
+test.latent <- stepfun(test.mmhp.fix$x[-1],test.mmhp.fix$z)
+time.segment <- seq(test.mmhp$tau[2],tail(test.mmhp$tau,1),length.out=2000)
+time.segment.delta <- time.segment[2]-time.segment[1]
+
+fixed.state.est.latent.mmhp <- ifelse(apply(fixed.state.stan.result[i][[1]]$zt[1001:2000,],2,function(x) sum(x==1)) >500,rep(1,1000),rep(2,1000))
+fixed.state.est.latent.mmhp <- modifiedLatentTrajectory(params=object_hat, interevent = test.mmhp$tau[-1]-test.mmhp$tau[-length(test.mmhp$tau)], zt = fixed.state.est.latent.mmhp)
+
+drawUniMMHPIntensityPaper(object,simulation=list(x=test.mmhp.fix$x,z=test.mmhp.fix$z,tau=test.mmhp$tau,zt=test.mmhp$zt,lambda.max=test.mmhp$lambda.max),yupper=test.mmhp$lambda.max+2, color="black",line.width=3.5,
+                          title_name="")
+drawUniMMHPIntensityPaper(object_hat,simulation=list(x=fixed.state.est.latent.mmhp$x.hat,z=fixed.state.est.latent.mmhp$z.hat,tau=test.mmhp$tau,zt=test.mmhp$zt,lambda.max=test.mmhp$lambda.max),
+                          yupper=test.mmhp$lambda.max+1,add=TRUE,color=rgb(0,190,0,alpha=180,maxColorValue=255),line.width=4.2)
+
+legend(-0.31,44.6,c("State 1/0 events","State change point"),
+       col = c(NA,"red"),
+       y.intersp=0.85,x.intersp=0.01,bty = "n",
+       pch = c(NA,4), pt.cex = c(NA,3), cex=4,
+       lty = c(NA,NA), lwd=c(NA,4))
+legend(5.65,44,c("True intensity","Estimated MMHP intensity"),
+       col = c("black",rgb(0,190,0,maxColorValue = 255)),
+       y.intersp=0.85,x.intersp=0.15,bty = "n",
+       lty = c(1,1), lwd = c(5,5), cex=4)
+points(0.3,33.6,pch=1,cex=3,col="blue")
+points(0.1,33.6,pch=16,cex=3,col="blue")
+
+#mmhpsd
+load(paste(data_path_input,"fixed_state_mmhpsd_result_100.Rdata",sep=""))
+event_time <- fixed.state.processes[i][[1]]$tau
+time_horizon <- tail(test.mmhp$tau,1)
+time_segment <- 0.02
+intensity_estimation <- numeric(1+round(time_horizon/time_segment))
+state_estimation <- numeric(1+round(time_horizon/time_segment))
+
+drawUniMMHPIntensityPaper(object,simulation=list(x=test.mmhp.fix$x,z=test.mmhp.fix$z,tau=test.mmhp$tau,zt=test.mmhp$zt,lambda.max=test.mmhp$lambda.max),yupper=test.mmhp$lambda.max+2, color="black",line.width=3.5)
+
+for(j in 0:(round(time_horizon/time_segment))){
+  est_result <- tryCatch(estSInt(tims = j*time_segment,
+                                      ti = event_time,
+                                      lamb0 = mmhpsd_par_result[i][[1]]$lamb,
+                                      nu0 = mmhpsd_par_result[i][[1]]$nu,
+                                      eta0 = mmhpsd_par_result[i][[1]]$eta,
+                                      Q0 = mmhpsd_par_result[i][[1]]$Q,
+                                      pai0 = mmhpsd_par_result[i][[1]]$pai, fortran = TRUE),
+                             warning = function(w) {0},
+                             error = function(e) {0})
+  intensity_estimation[j+1] <- ifelse(class(est_result)=="list",est_result$lambdat,est_result)
+  state_estimation[j+1] <- ifelse(class(est_result)=="list",est_result$estStat[2],est_result)
+}
+
+state_estimation <- state_estimation>0.5
+change_point <- numeric(0)
+for(j in c(1:length(state_estimation[-1]))){
+  if(state_estimation[j]==FALSE&state_estimation[j+1]==TRUE){
+    change_point <- c(change_point,j+1)
+  }
+  if(state_estimation[j]==TRUE&state_estimation[j+1]==FALSE){
+    change_point <- c(change_point,j)
+  }
+}
+time_vec <- c(0:(round(time_horizon/time_segment)))*time_segment
+j <- 1
+line_type <- 1
+for(k in c(1:length(change_point))){
+  lines(x=time_vec[c(j:change_point[k])], y=intensity_estimation[c(j:change_point[k])],
+      lwd=4.2, col=rgb(218,112,214,alpha=180,maxColorValue=255),lty=line_type)
+  j <- change_point[k]
+}
+lines(x=time_vec[c(j:length(state_estimation[-1]))], y=intensity_estimation[c(j:length(state_estimation[-1]))],
+      lwd=4.2, col=rgb(218,112,214,alpha=180,maxColorValue=255),lty=line_type)
+legend(5.65,42,c("Estimated MMHPSD intensity"),
+         col = c(rgb(221,160,221,maxColorValue = 255)),
+         y.intersp=0.88,x.intersp=0.15,bty = "n",
+         lty = c(1,1), lwd = c(5,5), cex=4,seg.len=1.5)
+
+##mmpp
+load(paste(data_path_input,"mmpp_fixed_state_stan_result_100.Rdata",sep=""))
+mmpp_par_name <- c("lambda0","c","q1","q2")
+mmpp_par_est <- numeric(4)
+fixed.state.latent.fun <- matrix(rep(list(),50*2),nrow=50,ncol=2)
+
+drawUniMMHPIntensityPaper(object,simulation=list(x=test.mmhp.fix$x,z=test.mmhp.fix$z,tau=test.mmhp$tau,zt=test.mmhp$zt,lambda.max=test.mmhp$lambda.max),yupper=test.mmhp$lambda.max+2, color="black",line.width=3.5)
+ 
+for(j in 1:4){
+  mmpp_par_est[j] <- mean(unlist(fixed.state.stan.result[i][[1]][mmpp_par_name[j]])[1001:2000])
+}
+
+#test.mmhp <- fixed.state.processes[i][[1]]
+object_hat <- list(lambda0=mmpp_par_est[1], c=mmpp_par_est[2], q1=mmpp_par_est[3],
+                   q2=mmpp_par_est[4])
+fixed.state.est.latent <- ifelse(apply(fixed.state.stan.result[i][[1]]$zt_v[1001:2000,],2,function(x) sum(x==1)) >500,rep(1,1000),rep(2,1000))
+fixed.state.est.latent <- mmppModifiedLatentTrajectory(params=object_hat, interevent = test.mmhp$tau[-1]-test.mmhp$tau[-length(test.mmhp$tau)], zt = fixed.state.est.latent)
+fixed.state.latent.fun <- stepfun(fixed.state.est.latent$x.hat[-1],fixed.state.est.latent$z.hat)
+
+time.segment <- seq(0,tail(test.mmhp$tau,1),length.out = 5000)
+fun.result <- fixed.state.latent.fun(time.segment)
+lines(ifelse(fun.result==2,object_hat$lambda0,object_hat$lambda0*(1+object_hat$c))~time.segment, type="l",col=rgb(169,169,169,alpha=180,maxColorValue=255), lwd=4.2)
+
+legend(5.65,42,c("Estimated MMPP intensity"),
+         col = c(rgb(169,169,169,alpha=180,maxColorValue=255)),
+         y.intersp=0.88,x.intersp=0.15,bty = "n",
+         lty = c(1,1), lwd = c(5,5),cex=4)
+mtext(text="(b)",side=3,line=-1,outer=TRUE,cex=3.5,font=2)
+mtext(text="Time",side=1,line=2.1,outer=TRUE,cex=2.5)
+mtext(text="Intensity",side=2,line=0.4,outer=TRUE,cex=2.5)
+
+invisible(dev.off())
+```
+
+![](../figures/sim_intensity.png)
+
+### [Fig] Comparison of intergated absolute error between MMHP and MMHPSD latent process
+
+To demonstrate that latent process of MMHPSD transits more frequent then MMHP, we use the integrated absolute error of inferred latent process $\hat{Z}(t)$: $\int_0^T|Z(t)-\hat{Z}(t)|dt$, where $Z(t)$ is the true latent process. Follwing plot demonstrates this quantity.
+
+#### (a) Demonstration plot
+
+```{r, eval=FALSE}
+l<-3
+no_events <- no_vec_events[l]
+load(paste(data_path,"fixed_state_mmhpsd_result_",no_events,".Rdata",sep=""))
+
+time_segment <- 0.05
+time_horizon <- tail(test.mmhp.fix$tau,1)
+time.segment <- c(0:round(time_horizon/time_segment))*time_segment
+draw.start<-1
+draw.end<-length(test.mmhp.fix$tau)
+draw.true.x<-which(test.mmhp.fix$x>test.mmhp.fix$tau[draw.start]&test.mmhp.fix$x<test.mmhp.fix$tau[draw.end])
+draw.true.time<-c(test.mmhp.fix$tau[draw.start],test.mmhp.fix$x[draw.true.x],test.mmhp.fix$tau[draw.end])
+draw.true.state<-3-c(test.mmhp.fix$z[head(draw.true.x,1)-1],test.mmhp.fix$z[draw.true.x],test.mmhp.fix$z[tail(draw.true.x,1)])
+
+par_name <- c("lambda0","alpha","beta","q1","q2")
+load(paste(data_path,"fixed_state_stan_result_",no_events,".Rdata",sep=""))
+
+fixed.state.array <- array(NA,dim=c(50,5,7))
+fixed.state.est.latent <- matrix(rep(list(),50*3),nrow=50,ncol=3)
+fixed.state.latent.fun <- matrix(rep(list(),50*2),nrow=50,ncol=2)
+
+for(i in 1:50){
+  for(j in 1:5){
+    fixed.state.array[i,j,1] <- mean(unlist(fixed.state.stan.result[i][[1]][par_name[j]])[1001:2000])
+    fixed.state.array[i,j,2] <- median(unlist(fixed.state.stan.result[i][[1]][par_name[j]])[1001:2000])
+  }
+  #estimate latent state
+  test.mmhp <- fixed.state.processes[i][[1]]
+  object_hat <- list(lambda0=fixed.state.array[i,1,1], alpha=fixed.state.array[i,2,1], beta=fixed.state.array[i,3,1], q1=fixed.state.array[i,4,1], q2=fixed.state.array[i,5,1])
+  test.latent <- stepfun(test.mmhp.fix$x[-1],test.mmhp.fix$z)
+  time.segment <- seq(test.mmhp$tau[2],tail(test.mmhp$tau,1),length.out=2000)
+  time.segment.delta <- time.segment[2]-time.segment[1]
+  
+  #2 estimation methods
+  fixed.state.est.latent[i,1][[1]] <- apply(fixed.state.stan.result[i][[1]]$zt_v[1001:2000,],2,mean)
+  fixed.state.est.latent[i,2][[1]] <- ifelse(apply(fixed.state.stan.result[i][[1]]$zt_v[1001:2000,],2,function(x) sum(x==1)) >500,rep(1,1000),rep(2,1000))
+  
+  #preperation for step function
+  fixed.state.est.latent[i,3][[1]] <- modifiedLatentTrajectory(params=object_hat, interevent = test.mmhp$tau[-1]-test.mmhp$tau[-length(test.mmhp$tau)], zt = fixed.state.est.latent[i,2][[1]])
+  
+  #interpolated function for each method
+  fixed.state.latent.fun[i,1][[1]] <- approxfun(x=test.mmhp$tau[-1], y=fixed.state.est.latent[i,1][[1]],rule=2)
+  fixed.state.latent.fun[i,2][[1]] <- stepfun(fixed.state.est.latent[i,3][[1]]$x.hat[-1],fixed.state.est.latent[i,3][[1]]$z.hat)
+}
+
+#plot
+time.segment <- seq(0,tail(test.mmhp.fix$tau,1),length.out = 5000)
+draw.start<-1
+draw.end<-length(test.mmhp.fix$tau)
+draw.true.x<-which(test.mmhp.fix$x>test.mmhp.fix$tau[draw.start]&test.mmhp.fix$x<test.mmhp.fix$tau[draw.end])
+draw.true.time<-c(test.mmhp.fix$tau[draw.start],test.mmhp.fix$x[draw.true.x],test.mmhp.fix$tau[draw.end])
+draw.true.state<-3-c(test.mmhp.fix$z[head(draw.true.x,1)-1],test.mmhp.fix$z[draw.true.x],test.mmhp.fix$z[tail(draw.true.x,1)])
+
+fun.result <- array(NA,dim=c(50,5000,2))
+for(i in 1:50){
+  for(j in 1:2){
+    fun.result[i,,j] <- fixed.state.latent.fun[i,j][[1]](time.segment)
+  }
+}
+
+for(i in 37){
+  png(paste(plot_path,"mmhpsd_mmhp_area_difference.png",sep=""), height=350, width=500)
+  par(mfrow=c(1,1),tcl=0.2,mgp=c(2.4,0,0),
+      mar=c(4,4.3,2.8,0.7), oma=c(0,0,0,0))
+  
+  plot(0.5,0,xlim=c(-0.2,tail(test.mmhp.fix$tau,1)),ylim=c(0.9,2.1), type="n",
+       xlab="Time",ylab="",xaxt="n",yaxt="n",cex.lab=1.8,bty="n")
+  title("(a)",line=0.5,cex.main=2.2)
+  axis(2,at=c(1,2),labels=FALSE,cex.lab=1.8,las=2,lwd=0,lwd.ticks=0)
+  axis(1,at=seq(0,40,5),labels=FALSE,cex.lab=1.8,las=2,lwd=1.5,lwd.ticks=1)
+  text(-1.15, y=c(1,2), labels=paste(rep(c("state","state"),4),rep(c(0,1),4)," "), cex=1.8, srt=0, xpd=TRUE)
+  text(seq(0,40,5), y=0.78, labels=seq(0,40,10), cex=1.8, srt=0, xpd=TRUE)
+  segments(x0=0,x1=tail(test.mmhp.fix$tau,1),y0=1,col="lightgrey",lwd=2)
+  segments(x0=0,x1=tail(test.mmhp.fix$tau,1),y0=2,col="lightgrey",lwd=2)
+  
+  state_mmhpsd <- state_estimation_matrix[i,] #2-(state_estimation<0.5)
+  time_mmhpsd <- c(0:(round(time_horizon/time_segment)))*time_segment
+  lines(state_mmhpsd+1~time_mmhpsd, type="l", col="blue", lwd=2.5)
+  
+  state_mmhp <- fun.result[i,,2] #2-(state_estimation<0.5)
+  time_mmhp <- seq(0,tail(test.mmhp.fix$tau,1),length.out = 5000)
+  lines(3-state_mmhp~time_mmhp, type="l",col="red", lwd=2.5)
+  
+  polygon(c(time_mmhpsd,rev(time_mmhpsd)),
+          c(state_mmhpsd+1,3-rev(test.latent(time_mmhpsd))),
+          col=rgb(0,0,225,alpha=50,maxColorValue=255),border=FALSE)
+  polygon(c(time_mmhp,rev(time_mmhp)),
+          c(3-state_mmhp,3-rev(test.latent(time_mmhp))),
+          col=rgb(225,0,0,alpha=50,maxColorValue=255),border=FALSE) 
+  lines(draw.true.state~draw.true.time,type="s",col="black",lwd=4)
+  
+  invisible(dev.off())
+}
+```
+
+![](../figures/mmhpsd_mmhp_area_difference.png)
+
+#### (b) Error comparison
+
+Error comparison under different simulation scenarios.
+
+```{r, eval=FALSE}
+file_name_vec <- c("fixed_state_stan_result_", "fixed_state_mmhpsd_result_")
+
+fun.error <- array(0,dim=c(4,2,50),
+                   dimnames = list(c("50events","100events","200events","500events"),
+                                   c("mmhp","mmhpsd"),
+                                   c(1:50)))
+for(l in c(1:4)){
+  no_events <- no_vec_events[l]
+  for(j in c(1:2)){
+    load(paste(data_path,file_name_vec[j],no_events,".Rdata",sep=""))
+    
+    for(i in c(1:50)){
+      test.mmhp <- fixed.state.processes[i][[1]]
+      test.latent <- stepfun(test.mmhp.fix$x[-1],test.mmhp.fix$z)
+      
+      if(j==2){
+        time_horizon <- tail(test.mmhp.fix$tau,1)
+        time_segment <- 0.05
+        time_vec <- time_segment*c(0:round(time_horizon/time_segment))
+        fixed.state.est.latent <- state_estimation_matrix[i,]
+        fun.error[l,j,i] <- sum(abs(state_estimation_matrix[i,]-test.latent(time_vec)))*time_segment
+      }else{
+        fixed.state.array <- numeric(5)
+        time.segment <- seq(test.mmhp$tau[1],tail(test.mmhp$tau,1),0.05)#length.out=2000)
+        time.segment.delta <- time.segment[2]-time.segment[1]
+        for(k in 1:5){
+          fixed.state.array[k] <- mean(unlist(fixed.state.stan.result[i][[1]][par_name[k]])[1001:2000])
+        }
+        object_hat <- list(lambda0=fixed.state.array[1], 
+                           alpha=fixed.state.array[2], 
+                           beta=fixed.state.array[3], 
+                           q1=fixed.state.array[4], 
+                           q2=fixed.state.array[5])
+        fixed.state.est.latent <- ifelse(apply(fixed.state.stan.result[i][[1]]$zt_v[1001:2000,],2,function(x) sum(x==1)) >500,rep(1,1000),rep(2,1000))
+        fixed.state.est.latent.new <- modifiedLatentTrajectory(params=object_hat, 
+                                                               interevent = test.mmhp$tau[-1]-test.mmhp$tau[-length(test.mmhp$tau)], 
+                                                               zt = fixed.state.est.latent)
+        fixed.state.latent.fun <- stepfun(fixed.state.est.latent.new$x.hat[-1],
+                                          fixed.state.est.latent.new$z.hat)
+        fun.error[l,j,i] <- sum(abs(fixed.state.latent.fun(time.segment)-test.latent(time.segment)))*time.segment.delta
+      }
+    }
+  }
+}
+
+fun.error.df <- data.frame(method=rep(c(rep("MMHP",50),rep("MMHPSD",50)),4),
+                           error=c(fun.error[4,1,],fun.error[4,2,],
+                                   fun.error[3,1,],fun.error[3,2,],
+                                   fun.error[2,1,],fun.error[2,2,],
+                                   fun.error[1,1,],fun.error[1,2,]),
+                           number_events=factor(rep(c(500,200,100,50),each=100)),levels=c(500,200,100,50))
+
+f <- ordered(fun.error.df$number_events, levels = c(500,200,100,50))
+
+png(paste(plot_path,"mmhpsd_mmhp_beeswarm.png",sep=""), height=350, width=600)
+par(mfrow=c(1,1),tcl=0.2,mgp=c(2.7,0,0),
+    mar=c(4,4.3,2.8,0.7), mai = c(0.85,0.9,0.4,3.2))
+
+beeswarm(error ~ f, data = fun.error.df, vertical = FALSE,
+         method = "center", pch = 16, cex=1, spacing = 1.1,
+         pwcol = c(rgb(255,0,0,alpha=190,maxColorValue = 255),
+                   rgb(0,0,255,alpha=190,maxColorValue = 255))[ifelse(method=="MMHP",rep(1,100),rep(2,100))],
+         xlab = "Integrated absolute error", ylab = "Number of events", corral = "gutter",cex.lab=1.8,
+         xaxt="n",yaxt="n",bty = "n")
+text(-2.52, y=c(1:4), labels=c("500", "200", "100", "50"), cex=1.8, srt=0, xpd=TRUE)
+text(seq(0,20,5), y=0.12, labels=seq(0,20,5), cex=1.8, srt=0, xpd=TRUE)
+title("(b)",line=-0.7,cex.main=2.2)
+axis(1,at=seq(0,20,5),labels=FALSE,cex.lab=1.8,las=2,lwd=1.5,lwd.ticks=1.5)
+
+legend(x = 24.5, y = 4, xpd = TRUE, bty = "n",
+       legend = c("true state",
+                  "MMHP state", "MMHPSD state",
+                  "MMHP error area", "MMHPSD error area", 
+                  "MMHP error value", "MMHPSD error value"),
+       col = c("black","red", "blue",
+               rgb(225,0,0,alpha=50,maxColorValue=255),
+               rgb(0,0,225,alpha=50,maxColorValue=255), 
+               "red", "blue"), 
+       lty = c(1,1,1,1,1,NA,NA), lwd = c(4,4,4,20,20,NA,NA),
+       pch = c(NA,NA,NA,NA,NA,16,16), pt.cex = c(NA,NA,NA,NA,NA,1.5,1.5), cex=1.5)       
+
+invisible(dev.off())
+```
+
+![](../figures/mmhpsd_mmhp_beeswarm.png)
+
+# Real data experiments
+
+Load packages,source code, change directory and define global variables.
+```{r, message = FALSE}
+###############################################################################
+#Load packages,source code, change directory and define global variables
+###############################################################################
+if (!require("pacman")) install.packages("pacman")
+pacman::p_load(devtools, rstan, knitr, MMHP, RColorBrewer, 
+               dichromat, steepness, Hmisc, igraph, dplyr, circlize, 
+               reshape2, ggplot2)
+devtools::install_github('jalapic/compete')
+library(compete)
+
+#Change directory
+setwd("~/Dropbox/Research/JASA_1/code")
+
+#Specify directory for saving simulation and model fitting data (change based on your own system)
+data_path = '../../../../Google Drive/paper_data_2/real_data/'
+
+#Specify directory for saving plots
+plot_path = '../figures/'
+
+#Load source code from ../lib/ 
+source('../lib/mmhp.R')
+source('../lib/mmpp.R')
+source('../lib/cleanData.R') #y
+source('../lib/naiveRankHierarchy.R') #y
+source('../lib/expertRankHierarchy.R')
+source('../lib/stanResult.R') #y
+source('../lib/myImagePlot.R') #y
+source('../lib/matrixPlotParameter.R')
+source('../lib/clusterAnalysis.R')
+source('../lib/iAndSI.R') #y
+source('../lib/metricsStateSeparation.R') #y
+source('../lib/sameTimeHorizonPlot.R')
+
+#Define global variable
+full_data <- readRDS("../data/mice.RData")
+# A=c9, B=c10, C=c12, D=c15, E=c16, F=c17, G=c18, H=c37, I=c38. J=c45
+cohort_names <- paste("cohort",c(9,10,12,15,16,17,18,37,38,45),sep='')
+cohort_short_names <- paste("C",c(9,10,12,15,16,17,18,37,38,45),sep='')
+cut_off <- 3
+mice_number <- 12
+```
+
+## Load the data, clean and fit in the model
+
+Load the data (10 cohorts), clean the data using source function `..\lib\cleanData.R`, fit the data into the model using `..\lib\mmhp_real_data.stan`. Store the simulation result for next step analysis in the folder specified before (`r data_path`).
+
+```{r, eval = FALSE}
+for(current_cohort in c(1:10)[-5]){
+  clean_data <- cleanData(full_data[[cohort_names[current_cohort]]])
+  fit_mmhp <- stan("../lib/mmhp_real_data.stan",
+                   data=list(max_Nm=max(clean_data$N_count),
+                             N_til=sum(clean_data$N_count>=cut_off),
+                             Nm=as.vector(clean_data$N_count[clean_data$N_count>=cut_off]),
+                             time_matrix=clean_data$time_matrix,
+                             max_interevent=clean_data$max_interevent),
+                   iter=1000, chains=4)
+  sim_mmhp_pair <- rstan::extract(fit_mmhp)
+  dir.create(paste(data_path, cohort_names[current_cohort],sep=''), recursive = TRUE)
+  save(sim_mmhp_pair, 
+       file = paste(data_path,cohort_names[current_cohort],
+                    "/mmhp_stan_result_",cohort_names[current_cohort],
+                    ".RData",sep=''))
+}
+```
+
+## Infer the latent Markov processes and plotting
+
+Load stan simulation result, infer the latent process and give the confidence band. Save all latent process result and the plots of inferred parameters (save as mmhp_latent_state_COHORTNAME.Rdata and parameter_COHORTNAME.pdf in the `r data_path`/COHORTNAME/ folder).
+
+```{r, eval = FALSE}
+for(current_cohort in c(1:10)[-5]){
+  clean_data <- cleanData(full_data[[cohort_names[current_cohort]]])
+  I_fit <- clean_data$I_fit
+  J_fit <- clean_data$J_fit
+  N_count <- clean_data$N_count
+  day_hour <- clean_data$day_hour
+  time_matrix <- clean_data$time_matrix
+  indicator_each_pair <- clean_data$indicator_each_pair
+  naive_rank <- naiveRankHierarchy(full_data[[cohort_names[current_cohort]]])
+  
+  # ------------- Load the saved stan result using function ../lib/stanResult, 
+  # ------------- and plot the inferred parameters and save
+  parameter_result <- stanResult(cohort_number = current_cohort, 
+                                 path = data_path)
+  ztv_list_pair <- parameter_result$ztv_list_pair
+  
+  pdf(paste(data_path,cohort_names[current_cohort],"/parameter_",cohort_names[current_cohort],".pdf",sep=''))
+  matrixPlotParameter(parameter_result$lambda0_matrix[rev(naive_rank),naive_rank],xLabels=naive_rank,yLabels=rev(naive_rank),title="lambda0 for mmhp")
+  matrixPlotParameter(parameter_result$alpha_matrix[rev(naive_rank),naive_rank],xLabels=naive_rank,yLabels=rev(naive_rank),title="alpha for mmhp")
+  mtext(paste("(mu,sigma)=(",round(parameter_result$mu_alpha,2),
+              ",",round(parameter_result$sigma_alpha,2),")"),at=0.7)
+  matrixPlotParameter(parameter_result$beta_matrix[rev(naive_rank),naive_rank],xLabels=naive_rank,yLabels=rev(naive_rank),title="beta for mmhp")
+  mtext(paste("(mu,sigma)=(",round(parameter_result$mu_beta,2),
+              ",",round(parameter_result$sigma_beta,2),")"),at=0.7)
+  matrixPlotParameter(parameter_result$q1_matrix[rev(naive_rank),naive_rank],xLabels=naive_rank,yLabels=rev(naive_rank),title="q1 for mmhp",max=40)
+  matrixPlotParameter(parameter_result$q2_matrix[rev(naive_rank),naive_rank],xLabels=naive_rank,yLabels=rev(naive_rank),title="q2 for mmhp")
+  dev.off()
+  
+  fun.result.array.mmhp <- array(NA,dim=c(mice_number,mice_number,1000,2000))
+  ztfunc.mmhp.df <- matrix(rep(list(),mice_number^2),mice_number,mice_number)
+  time.segment <- seq(0,max(day_hour),length.out=2000)
+  time.segment.delta <- time.segment[2]-time.segment[1]
+  fun.result <- matrix(NA,1000,2000)
+        
+  for(i in naive_rank){
+    for(k in 1:mice_number){
+      j <- naive_rank[k]
+      if(N_count[i,j]>=cut_off){
+        temp_t <- c(0,day_hour[unlist(indicator_each_pair[i,j])])
+        sample_zt_all <- ztv_list_pair[i,j][[1]]
+        for(l in 1:1000){
+          sample_ztv <- parameter_result$ztv_list_sample_pair[i,j,l][[1]]
+          modified_sample_ztv <- modifiedLatentTrajectory(params=list(lambda0=parameter_result$lambda0_matrix[i,j],
+                                                                      lambda1=parameter_result$lambda1_matrix[i,j],
+                                                                      alpha=parameter_result$alpha_matrix[i,j],
+                                                                      beta=parameter_result$beta_matrix[i,j],
+                                                                      q1=parameter_result$q1_matrix[i,j],
+                                                                      q2=parameter_result$q2_matrix[i,j]),
+                                                              interevent = temp_t[-1]-temp_t[-length(temp_t)],
+                                                              zt=sample_ztv,start=temp_t[1])
+          if(modified_sample_ztv$z.hat[1]==1&tail(modified_sample_ztv$z.hat,1)==1){
+            fun.result[l,]<-stepfun(c(temp_t[2]-0.0001,modified_sample_ztv$x.hat[-1],max(day_hour)),
+                                    c(2,modified_sample_ztv$z.hat[-length(modified_sample_ztv$z.hat)],2,2))(time.segment)
+          }
+          if(modified_sample_ztv$z.hat[1]==1&tail(modified_sample_ztv$z.hat,1)==2){
+            fun.result[l,]<-stepfun(c(temp_t[2],modified_sample_ztv$x.hat[-1]),
+                                    c(2,modified_sample_ztv$z.hat))(time.segment)
+          }
+          if(modified_sample_ztv$z.hat[1]==2&tail(modified_sample_ztv$z.hat,1)==1){
+            fun.result[l,]<-stepfun(c(modified_sample_ztv$x.hat[-1],max(day_hour)),
+                                    c(modified_sample_ztv$z.hat[-length(modified_sample_ztv$z.hat)],2,2))(time.segment)
+          }
+          if(modified_sample_ztv$z.hat[1]==2&tail(modified_sample_ztv$z.hat,1)==2){
+            fun.result[l,]<-stepfun(modified_sample_ztv$x.hat[-1],modified_sample_ztv$z.hat)(time.segment)
+          }
+          fun.result.array.mmhp[i,j,l,]<-fun.result[l,]
+        }
+        fun.result.int <- ifelse(apply(fun.result,2,mean)<1.5,rep(1,1000),rep(2,1000))
+        #fun.result.int <- ifelse((apply(fun.result,2,mean)-apply(fun.result,2,sd))>1.5,rep(2,1000),rep(1,1000))
+        ztfunc.mmhp.df[i,j][[1]] <- stepfun(time.segment,c(fun.result.int,2))
+      }
+    }
+  }
+  save(ztfunc.mmhp.df,fun.result.array.mmhp,ztv_list_pair,
+       file=paste(data_path,cohort_names[current_cohort],
+                  "/mmhp_latent_state_",cohort_names[current_cohort],".RData",sep=''))
+}
+```
+
+Plot latent state using confidence band: compute mean and sd from each posterior draw of latent trajectory. (save as latent_state_COHORTNAME.png in the `r data_path`/COHORTNAME/ folder).
+
+```{r, eval = FALSE}
+for(current_cohort in c(1:10)[-5]){
+  clean_data <- cleanData(full_data[[cohort_names[current_cohort]]])
+  I_fit <- clean_data$I_fit
+  J_fit <- clean_data$J_fit
+  N_count <- clean_data$N_count
+  day_hour <- clean_data$day_hour
+  time_matrix <- clean_data$time_matrix
+  indicator_each_pair <- clean_data$indicator_each_pair
+
+  naive_rank <- naiveRankHierarchy(full_data[[cohort_names[current_cohort]]])
+  
+  # ------------- Load the saved latent process result, plot the inferred latent process confidence band
+  load(paste(data_path,cohort_names[current_cohort],"/mmhp_latent_state_",cohort_names[current_cohort],".RData",sep=''))
+
+  png(paste(data_path,cohort_names[current_cohort],"/latent_state_",cohort_names[current_cohort],".png",sep=''), height=2000, width=2000)
+  
+  par(mfrow=c(3,4),
+      mar=c(3,4,4,3), oma=c(0,0,0,0))
+  time.segment <- seq(0,max(day_hour),length.out=2000)
+  time.segment.delta <- time.segment[2]-time.segment[1]
+  for(i in naive_rank){
+    plot(0,0,xlim=c(-0.2,tail(day_hour,1)+1),ylim=c(1,24),type="n",main=paste(i,"->",sep=""))
+    for(k in 1:mice_number){
+      j <- naive_rank[k]
+      if(N_count[i,j]>=cut_off){
+        fun.result <- matrix(NA,1000,2000)
+        temp_t <- c(0,day_hour[unlist(indicator_each_pair[i,j])])
+        sample_zt_all <- ztv_list_pair[i,j][[1]]
+        points(temp_t[-1],3-sample_zt_all+24-2*k,pch=4,cex=0.6,col="black")
+        lines(3-apply(fun.result.array.mmhp[i,j,,],2,mean)+24-2*k~time.segment,type="l",col="blue",lwd=1)
+        lines(3-apply(fun.result.array.mmhp[i,j,,],2,mean)-apply(fun.result.array.mmhp[i,j,,],2,sd)+24-2*k~time.segment,type="l",col="blue",lwd=0.5,lty=3)
+        lines(3-apply(fun.result.array.mmhp[i,j,,],2,mean)+apply(fun.result.array.mmhp[i,j,,],2,sd)+24-2*k~time.segment,type="l",col="blue",lwd=0.5,lty=3) 
+        text(tail(day_hour,1)+0.8,24-2*k+1.5,j)
+        text(0,24-2*k+1.5,ifelse(sample_zt_all[1]==1,"A","IA"),cex=0.6)
+      }else{
+        text(tail(day_hour,1)+0.8,24-2*k+1.5,j)
+      } 
+    }
+  }
+  dev.off()
+}
+```
+
+## Model diagonsis
+
+[Time rescaling theorem](http://www.stat.cmu.edu/~kass/papers/rescaling.pdf) is a well-known result in probability theory and is commonly used for goodness-of-fit test for point process data. We use QQ plot and KS test to assess model goodness of fit, and save them as `diagonsis_COHORTNAME` in the folder `r data_path` specified before.
+
+```{r, eval = FALSE}
+for(current_cohort in c(1:10)[-5]){
+  clean_data <- cleanData(full_data[[cohort_names[current_cohort]]])
+  I_fit <- clean_data$I_fit
+  J_fit <- clean_data$J_fit
+  N_count <- clean_data$N_count
+  day_hour <- clean_data$day_hour
+  time_matrix <- clean_data$time_matrix
+  indicator_each_pair <- clean_data$indicator_each_pair
+
+  naive_rank <- naiveRankHierarchy(full_data[[cohort_names[current_cohort]]])
+  
+  # ------------- Load the saved stan result, plot the inferred parameters and save
+  parameter_result <- stanResult(cohort_number = current_cohort, 
+                                 path = data_path)
+  
+  pdf(paste(data_path,cohort_names[current_cohort],"/diagonsis_",cohort_names[current_cohort],".pdf",sep=''))
+  
+  # -------------- qq plot
+  par(mfrow=c(mice_number,mice_number),
+      oma = c(2,2,.5,.5),
+      mar=c(.5,.5,1.5,.5),
+      mgp = c(0, .2, 0))
+  for(k in 1:mice_number){
+    for(l in 1:mice_number){
+      if(k==l){
+        plot(0,0,xlim=c(0,5),ylim=c(0,5),type="n", xlab="", ylab="", axes = FALSE, frame=TRUE)
+        mtext(paste(naive_rank[k],"->",naive_rank[l],sep=""),
+              side=3, line=0.8, cex=0.6)
+        mtext(paste("N=",N_count[i,j],sep=""), side=3, line=0, cex=0.5)
+      }else{
+        i<-naive_rank[k]
+        j<-naive_rank[l]
+        if(N_count[i,j]<cut_off){
+          plot(0,0,xlim=c(0,5),ylim=c(0,5),type="n", xlab="", ylab="", axes = FALSE, frame=TRUE)
+          mtext(paste(i,"->",j), side=3, line=0.8, cex=0.6)
+          mtext(paste("N=",clean_data$N_count[i,j],sep=""), side=3, line=0, cex=0.5)
+        }else{
+          temp_t <- c(0,day_hour[unlist(indicator_each_pair[i,j])])
+          Lambda.test<-mmhpCompensator(params=list(lambda0=parameter_result$lambda0_matrix[i,j],
+                                                   lambda1=parameter_result$lambda1_matrix[i,j],
+                                                   alpha=parameter_result$alpha_matrix[i,j],
+                                                   beta=parameter_result$beta_matrix[i,j],
+                                                   q1=parameter_result$q1_matrix[i,j],
+                                                   q2=parameter_result$q2_matrix[i,j]), 
+                                       t=temp_t, 
+                                       pzt=2-unlist(parameter_result$pztv_list_pair[i,j][[1]]),if.pzt=FALSE)
+          p <- ppoints(100)    # 100 equally spaced points on (0,1), excluding endpoints
+          q <- quantile(Lambda.test,p=p,na.rm=TRUE) # percentiles of the sample distribution
+          plot(qexp(p), q, xlab="", ylab="", axes = FALSE, frame=TRUE, cex=0.5)
+          qqline(q, distribution=qexp, col="blue", lty=2)
+          mtext(paste(i,"->",j), side=3, line=0.8, cex=0.6)
+          mtext(paste("N=",N_count[i,j],sep=""), side=3, line=0, cex=0.5)
+        }
+      }
+    }
+  }
+  title(xlab = "Theoretical Quantiles",
+        ylab = "Empirical Quantiles",
+        outer = TRUE, line = 0)
+  
+  # -------------- KS plot
+  KS.result.p <- matrix(NA,mice_number,mice_number)
+  KS.result.stat <- matrix(NA,mice_number,mice_number)
+  par(mfrow=c(mice_number,mice_number),
+      oma = c(.5,.5,.5,.5),
+      mar=c(.5,.5,1.5,.5),
+      mgp = c(0, .2, 0))
+  for(k in 1:mice_number){
+    for(l in 1:mice_number){
+      if(k==l){
+        plot(0,0,xlim=c(0,5),ylim=c(0,5),type="n", xlab="", ylab="", axes = FALSE, frame=TRUE)
+        mtext(paste(naive_rank[k],"->",naive_rank[l],sep=""),
+              side=3, line=0.8, cex=0.6)
+        mtext(paste("N=",N_count[i,j],sep=""), side=3, line=0, cex=0.5)
+      }else{
+        i<-naive_rank[k]
+        j<-naive_rank[l]
+        if(N_count[i,j]<cut_off){
+          plot(0,0,xlim=c(0,5),ylim=c(0,5),type="n", xlab="", ylab="", axes = FALSE, frame=TRUE)
+          mtext(paste(i,"->",j), side=3, line=0.8, cex=0.6)
+          mtext(paste("N=",N_count[i,j],sep=""), side=3, line=0, cex=0.5)
+        }else{
+          temp_t <- c(0,day_hour[unlist(indicator_each_pair[i,j])])
+          Lambda.test<-mmhpCompensator(params=list(lambda0=parameter_result$lambda0_matrix[i,j],
+                                                   lambda1=parameter_result$lambda1_matrix[i,j],
+                                                   alpha=parameter_result$alpha_matrix[i,j],
+                                                   beta=parameter_result$beta_matrix[i,j],
+                                                   q1=parameter_result$q1_matrix[i,j],
+                                                   q2=parameter_result$q2_matrix[i,j]), 
+                                       t=temp_t, 
+                                       pzt=2-unlist(parameter_result$pztv_list_pair[i,j][[1]]),if.pzt=FALSE)
+          KS.result.p[i,j]<-ks.test(Lambda.test,"pexp")$p.value
+          KS.result.stat[i,j]<-ks.test(Lambda.test,"pexp")$statistic
+          curve(pexp(x,1), min(Lambda.test), max(Lambda.test),
+                ylab="",xlab="",axes = FALSE, frame=TRUE)
+          plot(ecdf(Lambda.test), add=TRUE, do.points=FALSE, verticals=TRUE,col="red")
+          mtext(paste(i,"->",j), side=3, line=0.8, cex=0.6)
+          mtext(paste("N=",N_count[i,j],", p=",round(ks.test(Lambda.test,"pexp")$p.value,2),sep=""),
+                side=3, line=0, cex=0.5)
+        }
+      }
+    }
+  }
+  dev.off()
+}
+```
+
+## Further analysis and plots in paper
+
+After we have inferred the latent processes, at each event time $t$, we can categorize the event according to the latent state into utility v.s. social state. We separate the last half of interaction events and plot `state_separation_RANKMETHOD` in the folder `r data_path` specified before, where `RANKMETHOD` could be naive_rank (win-lose count) and [expert rank](https://www.sciencedirect.com/science/article/pii/S0003347297907089).
+
+```{r, eval=FALSE}
+for(current_cohort in c(1:10)[-5]){
+  clean_data <- cleanData(full_data[[cohort_names[current_cohort]]])
+  I_fit <- clean_data$I_fit
+  J_fit <- clean_data$J_fit
+  N_count <- clean_data$N_count
+  day_hour <- clean_data$day_hour
+  time_matrix <- clean_data$time_matrix
+  indicator_each_pair <- clean_data$indicator_each_pair
+  M <- clean_data$M
+  start <- clean_data$start
+  end <- clean_data$end
+
+  naive_rank <- naiveRankHierarchy(full_data[[cohort_names[current_cohort]]])
+  expert_rank <- expertRankHierarchy(full_data[[cohort_names[current_cohort]]])
+  
+  # ------------- Load the saved stan result 
+  parameter_result <- stanResult(cohort_number = current_cohort, 
+                                 path = data_path)
+  
+  # ----- all event data
+  mice_event_array <- array(0,dim=c(M,mice_number,mice_number))
+  for(m in 1:M){
+    for(i in 1:mice_number){
+      for(j in 1:mice_number){
+        mice_event_array[m,i,j] <- sum(start[m]==i&end[m]==j)
+      }
+    }
+  }
+
+  adjm<-apply(mice_event_array,c(2,3),cumsum)
+  M_half <- M/2
+  
+  # ------ separate active state and inactive
+  utility_state_cumcount <- array(0,dim=c(M,mice_number,mice_number))
+  utility_state_cumcount[2,start[1],end[1]] <- ifelse(parameter_result$ztv_list_pair[start[1],end[1]] == "NULL", 0, unlist(parameter_result$ztv_list_pair[start[1],end[1]])[1]==1)
+  
+  for(m in 3:M){
+    utility_state_cumcount[m,,] <- utility_state_cumcount[m-1,,]
+    if(length(unlist(indicator_each_pair[start[m],end[m]]))>=cut_off){
+      if(which(unlist(indicator_each_pair[start[m],end[m]])==m)==1){
+        temp_increment <- 0
+      }else{
+        temp_increment <- parameter_result$ztv_list_pair[start[m],end[m]][[1]][which(unlist(indicator_each_pair[start[m],end[m]])==m)-1]==1
+      }
+      utility_state_cumcount[m,start[m],end[m]] <- utility_state_cumcount[m,start[m],end[m]] + temp_increment
+    }
+  }
+  
+  # ------ plot state separation (v.s. naive_rank)
+  pdf(paste(data_path,cohort_names[current_cohort],"/state_seperation_naive_rank",cohort_names[current_cohort],".pdf",sep=''))
+  matrix1 <- adjm[M,,]-adjm[M_half,,]
+  matrix1[matrix1>40] <- 40
+  matrix1[matrix1==0] <- -10
+  myImagePlot(matrix1[naive_rank,naive_rank],xLabels=naive_rank,
+                    yLabels=naive_rank, zlim=c(0,40),colorPalette="Greens") 
+  
+  matrix2 <- utility_state_cumcount[M,,]-utility_state_cumcount[M_half,,]
+  matrix2[matrix2>40] <- 40
+  matrix2[matrix2==0] <- -10
+  myImagePlot(matrix2[naive_rank,naive_rank],xLabels=naive_rank,
+              yLabels=naive_rank,zlim=c(0,40)) 
+  
+  matrix3 <-adjm[M,naive_rank,naive_rank]-adjm[M_half,naive_rank,naive_rank]-
+    utility_state_cumcount[M,naive_rank,naive_rank]+utility_state_cumcount[M_half,naive_rank,naive_rank]
+  myImagePlot(matrix3[naive_rank,naive_rank],xLabels=naive_rank,
+              yLabels=naive_rank,
+              zlim=c(0,8),smallScale=TRUE,colorPalette="YlOrRd") 
+  dev.off()
+  
+  # ------ plot state separation (v.s. expert_rank)
+  pdf(paste(data_path,cohort_names[current_cohort],"/state_seperation_expert_rank",cohort_names[current_cohort],".pdf",sep=''))
+  matrix1 <- adjm[M,,]-adjm[M_half,,]
+  matrix1[matrix1>40] <- 40
+  matrix1[matrix1==0] <- -10
+  myImagePlot(matrix1[expert_rank,expert_rank],xLabels=expert_rank,
+                    yLabels=expert_rank, zlim=c(0,40),colorPalette="Greens") 
+  
+  matrix2 <- utility_state_cumcount[M,,]-utility_state_cumcount[M_half,,]
+  matrix2[matrix2>40] <- 40
+  matrix2[matrix2==0] <- -10
+  myImagePlot(matrix2[expert_rank,expert_rank],xLabels=expert_rank,
+              yLabels=expert_rank,zlim=c(0,40)) 
+  
+  matrix3 <-adjm[M,expert_rank,expert_rank]-adjm[M_half,expert_rank,expert_rank]-
+    utility_state_cumcount[M,expert_rank,expert_rank]+utility_state_cumcount[M_half,expert_rank,expert_rank]
+  myImagePlot(matrix3[expert_rank,expert_rank],xLabels=expert_rank,
+              yLabels=expert_rank,
+              zlim=c(0,8),smallScale=TRUE,colorPalette="YlOrRd") 
+  dev.off()
+}
+```
+
+### [Fig] Introduction - event arrival time and distribution
+
+```{r}
+current_cohort <- 5
+current_i <- 2
+current_j <- 12
+clean_data <- cleanData(full_data[[cohort_names[current_cohort]]])
+current_event_time <- clean_data$day_hour[unlist(clean_data$indicator_each_pair[current_i,current_j])]
+```
+
+#### (a) Event arrival time
+```{r, eval=FALSE}
+png(paste(plot_path,"event_time_line.png",sep=""), height=200, width=700)
+par(mfrow=c(1,1),tcl=0.2,mgp=c(3,0,0),
+    mar=c(4.5,4.8,3,0.8), oma=c(0,0,0,0))
+
+## MMPP
+plot(0.5,0,xlim=c(-0.2,45),ylim=c(0.7,2), type="n",
+     xlab="Time (/hr)",ylab="",xaxt="n",yaxt="n",cex.lab=1.8,bty="n")
+title("(a)",line=1,cex.main=2)
+axis(2,at=c(1,2),labels=FALSE,cex.lab=1.8,las=2,lwd=0,lwd.ticks=0)
+axis(1,at=seq(0,45,5),labels=FALSE,cex.lab=1.8,las=2,lwd=1.5,lwd.ticks=1)
+text(seq(0,45,5), y=0.5, labels=seq(0,45,5), cex=1.7, srt=0, xpd=TRUE)
+
+segments(x0=0.1,x1=45,y0=1.5,col="lightgrey",lwd=2)
+points(current_event_time,rep(1.5,length(current_event_time)),pch=4,col="black",cex=1.5,lwd=2)
+for(i in 1:length(current_event_time)){
+  segments(x0=current_event_time[i],x1=current_event_time[i],
+           y0=0.5,y1=1.5,lty=3)
+}
+points(current_event_time,rep(1.5,length(current_event_time)),pch=4,col="black",cex=1.5,lwd=2)
+text(-3.6, y=1.5, labels="Event arrival", cex=1.4, srt=0, xpd=TRUE)
+text(-3.6, y=1.2, labels="time", cex=1.4, srt=0, xpd=TRUE)
+
+invisible(dev.off())
+```
+
+#### (b) Distribution of interevent time
+
+```{r, eval=FALSE}
+#load(paste(data_path,cohort_names[current_cohort], "/plot_mmhpsd_mmpp.RData",sep=''))
+png(paste(plot_path,"real_hist.png",sep=""), height=200, width=300)
+par(mfrow=c(1,1),tcl=0.2,mgp=c(1.8,0,0),
+    mar=c(2.4,3.3,1,0.5), oma=c(0,0,0,0))
+hist(current_event_time[-1]-current_event_time[-length(current_event_time)],freq=F,breaks=15,
+     xlab="",ylab="Density",xaxt="n",yaxt="n",main="",cex.lab=1.7, bty="o")
+
+title("(b)",line=-0.5,cex.main=2)
+axis(2,at=c(0:10),labels=FALSE,cex.lab=1.8,las=2,lwd=1.2,lwd.ticks=1)
+axis(1,at=seq(0,7,1),labels=FALSE,cex.lab=1.8,las=2,lwd=1.2,lwd.ticks=1)
+text(-0.72, y=seq(0,0.8,0.2), labels=seq(0,0.8,0.2), cex=1.4, srt=0, xpd=TRUE)
+text(seq(0,7,1), y=-0.09, labels=seq(0,7,1), cex=1.4, srt=0, xpd=TRUE)
+text(3.5,-0.2,"Interevent time (/hr)", cex=1.6, srt=0, xpd=TRUE)
+
+## Plot the density curve for interevent time
+h <- hist(current_event_time[-1]-current_event_time[-length(current_event_time)], plot = FALSE, breaks=10)
+xl <- seq(0, max(h$mids), (max(h$mids))/1000)
+lines(xl, predict(loess(c(1,h$density) ~ c(-0.5,h$mids), span = 1.2), xl), lwd = 3, col="blue")
+#lines(density(current_event_time[-1]-current_event_time[-length(current_event_time)], 
+#              bw=1, from = -1, kernel="cosine"), lwd = 3, col="blue")
+## Plot the density curve for exponential
+exp_lambda_hat <- 1/(mean(current_event_time[-1]-current_event_time[-length(current_event_time)]))
+curve(dexp(x, rate=exp_lambda_hat),
+      xlim=range(current_event_time[-1]-current_event_time[-length(current_event_time)]),
+      lwd=3, col="red", add = TRUE)
+
+legend(0.28,1,c("real interevent time density", "exponential interevent time \n density"),
+       lty=1,lwd=4,col=c("blue","red"),y.intersp=0.85,x.intersp=0.4,seg.len=0.8,bty="n",cex=1.35)
+
+invisible(dev.off())
+```
+
+![](../figures/real_hist.png)
+
+### [Fig] Introduction - comparison of MMPP and MMHPSD
+
+In order to demonstrate MMPP and MMHPSD are not satisfied models for our data, we fit (`r current_i`->`r current_j`) mice interactions in cohort `r current_cohort` in both models. The data is saved in `r paste(data_path,cohort_names[current_cohort],sep="")`.
+
+```{r, results='hide', eval=FALSE}
+### preperation for data
+clean_data <- cleanData(full_data[[cohort_names[current_cohort]]])
+I_fit <- clean_data$I_fit
+J_fit <- clean_data$J_fit
+N_count <- clean_data$N_count
+naive_rank <- naiveRankHierarchy(full_data[[cohort_names[current_cohort]]])
+
+### fit the data into mmpp
+fit_mmpp <- stan("../lib/mmpp_real_data.stan",
+                  data=list(max_Nm=max(clean_data$N_count),
+                             N_til=sum(clean_data$N_count>=cut_off),
+                             Nm=as.vector(clean_data$N_count[clean_data$N_count>=cut_off]),
+                             time_matrix=clean_data$time_matrix,
+                             max_interevent=clean_data$max_interevent),
+                   iter=1000, chains=4)
+sim_mmpp_pair <- rstan::extract(fit_mmpp)
+
+zt_mmpp_pair <- ifelse(apply(sim_mmpp_pair$zt[1001:2000,,],c(2,3),function(x) sum(x==1)) >500,rep(1,1000),rep(2,1000))
+ztv_mmpp_pair <- t(ifelse(apply(sim_mmpp_pair$zt_v[1001:2000,,],c(2,3),function(x) sum(x==1)) >500,rep(1,1000),rep(2,1000)))
+pztv_mmpp_pair <- t(apply(sim_mmpp_pair$zt_v[1001:2000,,],c(2,3),mean))
+lambda0_pair <- apply(sim_mmpp_pair$lambda0[1001:2000,],2,mean)
+c_pair <- apply(sim_mmpp_pair$c[1001:2000,],2,mean)
+q1_pair <- apply(sim_mmpp_pair$q1[1001:2000,],2,mean)
+q2_pair <- apply(sim_mmpp_pair$q2[1001:2000,],2,mean)
+
+lambda0_matrix <- matrix(0,ncol=12,nrow=12)
+c_matrix <- matrix(0,ncol=12,nrow=12)
+q1_matrix <- matrix(0,ncol=12,nrow=12)
+q2_matrix <- matrix(0,ncol=12,nrow=12)
+zt_list_pair <- matrix(rep(list(),144),12,12)
+zt_list_sample_pair <- array(rep(list(),144*1000),dim=c(12,12,1000))
+ztv_list_pair <- matrix(rep(list(),144),12,12)
+pztv_list_pair <- matrix(rep(list(),144),12,12)
+ztv_list_sample_pair <- array(rep(list(),144*1000),dim=c(12,12,1000))
+
+for(i in 1:sum(N_count>=cut_off)){
+  lambda0_matrix[I_fit[i],J_fit[i]] <- lambda0_pair[i]
+  c_matrix[I_fit[i],J_fit[i]] <- c_pair[i]
+  q1_matrix[I_fit[i],J_fit[i]] <- q1_pair[i]
+  q2_matrix[I_fit[i],J_fit[i]] <- q2_pair[i]
+  zt_list_pair[I_fit[i],J_fit[i]][[1]] <- zt_mmpp_pair[i,1:c(N_count[I_fit[i],J_fit[i]]-1)]
+  ztv_list_pair[I_fit[i],J_fit[i]][[1]] <- ztv_mmpp_pair[i,1:(N_count[I_fit[i],J_fit[i]]-1)]
+  pztv_list_pair[I_fit[i],J_fit[i]][[1]] <- pztv_mmpp_pair[i,1:(N_count[I_fit[i],J_fit[i]]-1)]
+  for(k in 1:1000){
+    zt_list_sample_pair[I_fit[i],J_fit[i],k][[1]] <- sim_mmpp_pair$zt[k+1000,i,1:(N_count[I_fit[i],J_fit[i]]-1)]
+    ztv_list_sample_pair[I_fit[i],J_fit[i],k][[1]] <- sim_mmpp_pair$zt_v[k+1000,1:(N_count[I_fit[i],J_fit[i]]-1),i]
+  }
+}
+
+fun.result.array <- array(NA,dim=c(12,12,1000,2000))
+ztfunc.mmpp.df <- matrix(rep(list(),144),12,12)
+time.segment <- seq(0,max(clean_data$day_hour),length.out=2000)
+time.segment.delta <- time.segment[2]-time.segment[1]
+
+for(i in naive_rank){
+  for(k in 1:12){
+    j <- naive_rank[k]
+    if(N_count[i,j]>=cut_off){
+      fun.result <- matrix(NA,1000,2000)
+      temp_t <- clean_data$day_hour[unlist(clean_data$indicator_each_pair[i,j])]
+      sample_zt_all <- ztv_list_pair[i,j][[1]]
+      for(l in 1:1000){
+        sample_ztv <- ztv_list_sample_pair[i,j,l][[1]]
+        modified_sample_ztv <- mmppModifiedLatentTrajectory(params=list(lambda0_matrix[i,j],c_matrix[i,j],q1_matrix[i,j],q2_matrix[i,j]),
+                                                            interevent = temp_t[-1]-temp_t[-length(temp_t)],
+                                                            zt=sample_ztv,start=temp_t[1])
+        if(modified_sample_ztv$z.hat[1]==1&tail(modified_sample_ztv$z.hat,1)==1){
+          fun.result[l,]<-stepfun(c(temp_t[2],modified_sample_ztv$x.hat[-1],max(clean_data$day_hour)),
+                                  c(2,modified_sample_ztv$z.hat[-length(modified_sample_ztv$z.hat)],2,2))(time.segment)
+        }
+        if(modified_sample_ztv$z.hat[1]==1&tail(modified_sample_ztv$z.hat,1)==2){
+          fun.result[l,]<-stepfun(c(temp_t[2],modified_sample_ztv$x.hat[-1]),
+                                  c(2,modified_sample_ztv$z.hat))(time.segment)
+        }
+        if(modified_sample_ztv$z.hat[1]==2&tail(modified_sample_ztv$z.hat,1)==1){
+          fun.result[l,]<-stepfun(c(modified_sample_ztv$x.hat[-1],max(clean_data$day_hour)),
+                                  c(modified_sample_ztv$z.hat[-length(modified_sample_ztv$z.hat)],2,2))(time.segment)
+        }
+        if(modified_sample_ztv$z.hat[1]==2&tail(modified_sample_ztv$z.hat,1)==2){
+          fun.result[l,]<-stepfun(modified_sample_ztv$x.hat[-1],modified_sample_ztv$z.hat)(time.segment)
+        }
+        fun.result.array[i,j,l,]<-fun.result[l,]
+      }
+      #fun.result.int <- ifelse((apply(fun.result,2,mean)+apply(fun.result,2,sd))<1.5,rep(1,1000),rep(2,1000))
+      fun.result.int <- ifelse(apply(fun.result,2,mean)<1.5,rep(1,1000),rep(2,1000))
+      ztfunc.mmpp.df[i,j][[1]] <- stepfun(time.segment,c(fun.result.int,2))
+    }
+  }
+}
+
+### fit the data into mmhpsd
+current_event_time <- clean_data$day_hour[unlist(clean_data$indicator_each_pair[current_i,current_j])]
+mmhpsd_par_result <- handelExceptionMmhpsd(current_event_time)
+
+time_horizon <- tail(current_event_time,1)
+time_segment <- 0.03
+state_estimation <- numeric(1+(round(time_horizon/time_segment)))
+for(j in 0:(round(time_horizon/time_segment))){
+  est_result <- tryCatch(estSInt(tims = j*time_segment,
+                                 ti = c(0,current_event_time),
+                                 lamb0 = mmhpsd_par_result$lamb,
+                                 nu0 = mmhpsd_par_result$nu,
+                                 eta0 = mmhpsd_par_result$eta,
+                                 Q0 = mmhpsd_par_result$Q,
+                                 pai0 = mmhpsd_par_result$pai, fortran = TRUE),
+                           warning = function(w) {0},
+                           error = function(e) {0})
+  state_estimation[j+1] <- ifelse(class(est_result)=="list",est_result$estStat[2],est_result)
+}
+
+event_state_estimation <- numeric(length(current_event_time))
+for(j in 1:length(current_event_time)){
+  est_result <- tryCatch(estSInt(tims = current_event_time[j],
+                                 ti = c(0,current_event_time),
+                                 lamb0 = mmhpsd_par_result$lamb,
+                                 nu0 = mmhpsd_par_result$nu,
+                                 eta0 = mmhpsd_par_result$eta,
+                                 Q0 = mmhpsd_par_result$Q,
+                                 pai0 = mmhpsd_par_result$pai, fortran = TRUE),
+                           warning = function(w) {0},
+                           error = function(e) {0})
+  event_state_estimation[j] <- ifelse(class(est_result)=="list",est_result$estStat[2],est_result)
+}
+
+save(current_cohort,current_i,current_j,current_event_time,
+     zt_list_pair,fun.result.array,state_estimation,event_state_estimation,
+     file=paste(data_path,cohort_names[current_cohort],"/new_plot_mmhpsd_mmpp.RData",sep=''))
+```
+
+```{r, eval=FALSE}
+load(paste(data_path,cohort_names[current_cohort], "/new_plot_mmhpsd_mmpp.RData",sep=''))
+clean_data <- cleanData(full_data[[cohort_names[current_cohort]]])
+
+png(paste(plot_path,"real_state_mmhpsd_mmpp.png",sep=""), height=250, width=1000)
+par(mfrow=c(1,2),tcl=0.2,mgp=c(3,0,0),
+    mar=c(4.5,4.8,3,0.8), oma=c(0,0,0,0))
+
+## MMPP
+plot(0.5,0,xlim=c(-0.2,45),ylim=c(0.7,2.3), type="n",
+     xlab="Time (hours)",ylab="",xaxt="n",yaxt="n",cex.lab=1.8,bty="n")
+title("(a) MMPP",line=1,cex.main=2)
+axis(2,at=c(1,2),labels=FALSE,cex.lab=1.8,las=2,lwd=0,lwd.ticks=0)
+axis(1,at=seq(0,45,5),labels=FALSE,cex.lab=1.8,las=2,lwd=1.5,lwd.ticks=1)
+text(-3.6, y=c(1,2), labels=paste(c("state","state"),c(0,1)," "), cex=1.8, srt=0, xpd=TRUE)
+text(-2.6, y=2.3, labels="Inferred latent state", cex=1.2, srt=0, xpd=TRUE)
+text(seq(0,45,5), y=0.5, labels=seq(0,45,5), cex=1.7, srt=0, xpd=TRUE)
+
+segments(x0=0,x1=tail(clean_data$day_hour,1),y0=1,col="lightgrey",lwd=2)
+segments(x0=0,x1=tail(clean_data$day_hour,1),y0=2,col="lightgrey",lwd=2)
+segments(x0=0,x1=tail(clean_data$day_hour,1),y0=1.5,col="darkgrey",lwd=1,lty=2)
+
+sample_zt_all <- zt_list_pair[current_i,current_j][[1]]
+mean.fun.result.array.mmpp <- apply(fun.result.array[current_i,current_j,,],2,mean)
+
+time.segment <- seq(0,max(clean_data$day_hour),length.out=2000)
+time.segment.delta <- time.segment[2]-time.segment[1]
+lines(3-mean.fun.result.array.mmpp~time.segment,type="l",col="grey",lwd=4)
+polygon(c(time.segment,rev(time.segment)),
+        c(3-mean.fun.result.array.mmpp-apply(fun.result.array[current_i,current_j,,],2,sd),
+          rev(3-mean.fun.result.array.mmpp+apply(fun.result.array[current_i,current_j,,],2,sd))),
+        col=rgb(128,128,128,alpha=50,maxColorValue=255),border=FALSE)
+points(current_event_time,3-c(2,c(sample_zt_all[1:(length(sample_zt_all)-2)],1,tail(sample_zt_all,1))),pch=4,col="black",cex=1.2,lwd=2) ##to fix
+
+### MMHPSD
+plot(0.5,0,xlim=c(-0.2,45),ylim=c(0.7,2.3), type="n",
+     xlab="Time (hours)",ylab="",xaxt="n",yaxt="n",cex.lab=1.8,bty="n")
+title("(b) MMHPSD",line=1,cex.main=2)
+axis(2,at=c(1,2),labels=FALSE,cex.lab=1.8,las=2,lwd=0,lwd.ticks=0)
+axis(1,at=seq(0,45,5),labels=FALSE,cex.lab=1.8,las=2,lwd=1.5,lwd.ticks=1)
+text(-3.6, y=c(1,2), labels=paste(c("state","state"),c(0,1)," "), cex=1.8, srt=0, xpd=TRUE)
+text(-2.6, y=2.3, labels="Inferred latent state", cex=1.2, srt=0, xpd=TRUE)
+text(seq(0,45,5), y=0.5, labels=seq(0,45,5), cex=1.7, srt=0, xpd=TRUE)
+
+segments(x0=0,x1=tail(clean_data$day_hour,1),y0=1,col="lightgrey",lwd=2)
+segments(x0=0,x1=tail(clean_data$day_hour,1),y0=2,col="lightgrey",lwd=2)
+segments(x0=0,x1=tail(clean_data$day_hour,1),y0=1.5,col="darkgrey",lwd=1,lty=2)
+
+
+time_horizon <- tail(current_event_time,1)
+time_segment <- 0.03 #025
+state_mmhpsd <- state_estimation+1 #2-(state_estimation<0.5)
+time_mmhpsd <- c(0:(round(time_horizon/time_segment)))*time_segment
+lines(state_mmhpsd~time_mmhpsd, type="l", col="grey", lwd=4)
+points(current_event_time,c(1+(event_state_estimation[-length(event_state_estimation)]>0.5),2),pch=4,col="black",cex=1.2,lwd=2) ##!!!
+
+invisible(dev.off())
+```
+
+![](../figures/real_state_mmhpsd_mmpp.png)
+
+### [Fig] Goodness of fit plot
+
+```{r}
+current_cohort <- 5
+current_i <- 2
+current_j <- 12
+```
+
+Following plots are visualizing result from fitting cohort `r cohort_names[current_cohort]` (`r current_i`->`r current_j`) pair in MMHP model. Comparing to the first plot in the paper using same data, we could see that our model fits the data better.
+
+#### (a) One pair -- latent state plot
+
+```{r, eval=FALSE}
+clean_data <- cleanData(full_data[[cohort_names[current_cohort]]])
+#event_time <- cumsum(clean_data$time_matrix[current_pair,c(1:clean_data$N_count[clean_data$I_fit[current_pair],clean_data$J_fit[current_pair]])])
+current_event_time <- clean_data$day_hour[unlist(clean_data$indicator_each_pair[current_i,current_j])]
+time.segment <- seq(0,max(clean_data$day_hour),length.out=2000)
+time.segment.delta <- time.segment[2]-time.segment[1]
+
+#parameter_result <- stanResult(cohort_number = current_cohort, path = "~/Google Drive/paper_data/real_data/") 
+
+#load(paste(data_path,cohort_names[current_cohort],"/mmhp_latent_state_",cohort_names[current_cohort],".RData",sep=''))
+sample_zt_all <- ztv_list_pair[current_i,current_j][[1]]
+
+png(paste(plot_path,"real_state_mmhp.png",sep=""), height=250, width=800)
+par(mfrow=c(1,1),tcl=0.2,mgp=c(3,0,0),
+    mar=c(4.5,4.8,3,0.8), oma=c(0,0,0,0))
+plot(0.5,0,xlim=c(-0.2,tail(current_event_time,1)+1),ylim=c(0.7,2.3), type="n",
+     xlab="Time (hours)",ylab="",xaxt="n",yaxt="n",cex.lab=1.8,bty="n")
+title("(a)",line=1,cex.main=2)
+axis(2,at=c(1,2),labels=FALSE,cex.lab=1.8,las=2,lwd=0,lwd.ticks=0)
+axis(1,at=seq(0,45,5),labels=FALSE,cex.lab=1.8,las=2,lwd=1.5,lwd.ticks=1)
+text(-3.6, y=c(1,2), labels=paste(c("state","state"),c(0,1)," "), cex=1.8, srt=0, xpd=TRUE)
+text(seq(0,45,5), y=0.5, labels=seq(0,45,5), cex=1.7, srt=0, xpd=TRUE)
+text(-1.6, y=2.4, labels="Inferred latent state", cex=1.4, srt=0, xpd=TRUE)
+
+segments(x0=0,x1=tail(current_event_time,1),y0=1,col="lightgrey",lwd=2)
+segments(x0=0,x1=tail(current_event_time,1),y0=2,col="lightgrey",lwd=2)
+segments(x0=0,x1=tail(clean_data$day_hour,1),y0=1.5,col="darkgrey",lwd=1,lty=2)
+
+points(current_event_time,3-sample_zt_all,pch=4,col="black",cex=1.2,lwd=2)
+lines(3-apply(fun.result.array.mmhp[current_i,current_j,,],2,mean)~time.segment,type="l",col="blue",lwd=4)
+polygon(c(time.segment,rev(time.segment)),
+        c(3-apply(fun.result.array.mmhp[current_i,current_j,,],2,mean)-
+          apply(fun.result.array.mmhp[current_i,current_j,,],2,sd),
+        rev(3-apply(fun.result.array.mmhp[current_i,current_j,,],2,mean)+apply(fun.result.array.mmhp[current_i,current_j,,],2,sd))),
+       col=rgb(0,0,225,alpha=50,maxColorValue=255),border=FALSE)
+
+invisible(dev.off())
+```
+
+![](../figures/real_state_mmhp.png)
+
+#### (b) One pair -- qq plot
+```{r, eval=FALSE}
+parameter_result <- stanResult(cohort_number = current_cohort, path = data_path) 
+
+Lambda.test.mmhp<-mmhpCompensator(params=list(lambda0=parameter_result$lambda0_matrix[current_i,current_j],
+                                              lambda1=parameter_result$lambda1_matrix[current_i,current_j],
+                                            alpha=parameter_result$alpha_matrix[current_i,current_j],
+                                            beta=parameter_result$beta_matrix[current_i,current_j],
+                                            q1=parameter_result$q1_matrix[current_i,current_j],
+                                            q2=parameter_result$q2_matrix[current_i,current_j]), 
+                                  t=c(0,current_event_time),
+                                  pzt=2-unlist(parameter_result$pztv_list_pair[current_i,current_j][[1]]),
+                                  if.pzt=FALSE)
+
+png(paste(plot_path,"real_qq.png",sep=""), height=350, width=400)
+par(mfrow=c(1,1),tcl=0.2,mgp=c(3,0,0),
+    mar=c(4.5,4.7,2.6,0.8), oma=c(0,0,0,0))
+p <- ppoints(100)    # 100 equally spaced points on (0,1), excluding endpoints
+q <- quantile(Lambda.test.mmhp,p=p,na.rm=TRUE) # percentiles of the sample distribution
+plot(qexp(p),q, xlab="Theoretical Quantiles",ylab="Empirical Quantiles",cex.lab=2.2,xaxt="n",yaxt="n",
+     pch=1,cex=1.5,col="Black",ylim=c(0,5),xlim=c(0,5))
+#axis(2,at=c(0:5),cex.axis=2,lwd=0,lwd.ticks=1)
+#axis(1,at=c(0:5),cex.axis=2,lwd=0,lwd.ticks=1)
+mgp.axis(1,mgp=c(0,0.6,0),at=c(0:5),cex.axis=2,lwd=0,lwd.ticks=1)
+mgp.axis(2,mgp=c(0,0.1,0),at=c(0:5),cex.axis=2,lwd=0,lwd.ticks=1)
+title("(b)",line=0.7,cex.main=2)
+qqline(q, distribution=qexp,col="Black", lty=1, lwd=2.5)
+
+invisible(dev.off())
+```
+![](../figures/real_qq.png)
+
+#### (c) One pair -- ks plot
+```{r, eval=FALSE}
+png(paste(plot_path,"real_ks.png",sep=""), height=350, width=400)
+
+par(mfrow=c(1,1),tcl=0.2,mgp=c(3,0,0),
+    mar=c(4.5,4.7,2.6,0.8), oma=c(0,0,0,0))
+curve(pexp(x,1), min(Lambda.test.mmhp),max(Lambda.test.mmhp),col="Black",
+      xlab="Compensator",ylab="CDF",cex.lab=2.2,xaxt="n",yaxt="n")
+mgp.axis(1,mgp=c(0,0.6,0),at=c(0:4),cex.axis=2,lwd=0,lwd.ticks=1)
+mgp.axis(2,mgp=c(0,0.1,0),at=seq(0,1,0.2),cex.axis=2,lwd=0,lwd.ticks=1)
+title("(c)",line=0.7,cex.main=2)
+plot(ecdf(Lambda.test.mmhp), add=TRUE, do.points=FALSE, col.01line = "white", verticals=TRUE,col="Red", lwd=3.5)
+legend("bottomright",c("Exponential CDF","Empirical CDF"),lty=1,lwd=2,col=c("Black","Red"),
+        bty="n",cex=2.2)
+
+invisible(dev.off())
+```
+![](../figures/real_ks.png)
+
+### [Fig] State separation (one cohort)
+
+```{r, message=FALSE, results = 'hide', eval=FALSE}
+for(current_cohort in c(5)){
+  clean_data <- cleanData(full_data[[cohort_names[current_cohort]]])
+  I_fit <- clean_data$I_fit
+  J_fit <- clean_data$J_fit
+  N_count <- clean_data$N_count
+  day_hour <- clean_data$day_hour
+  time_matrix <- clean_data$time_matrix
+  indicator_each_pair <- clean_data$indicator_each_pair
+  M <- clean_data$M
+  start <- clean_data$start
+  end <- clean_data$end
+
+  naive_rank <- naiveRankHierarchy(full_data[[cohort_names[current_cohort]]])
+  expert_rank <- expertRankHierarchy(full_data[[cohort_names[current_cohort]]])
+  
+  # ------------- Load the saved stan result, plot the inferred parameters and save
+  parameter_result <- stanResult(cohort_number = current_cohort, 
+                                 path = data_path)
+  
+  # ----- all event data
+  mice_event_array <- array(0,dim=c(M,mice_number,mice_number))
+  for(m in 1:M){
+    for(i in 1:mice_number){
+      for(j in 1:mice_number){
+        mice_event_array[m,i,j] <- sum(start[m]==i&end[m]==j)
+      }
+    }
+  }
+
+  adjm<-apply(mice_event_array,c(2,3),cumsum)
+  M_half <- M/2
+  
+  # ------ separate active state and inactive
+  utility_state_cumcount <- array(0,dim=c(M,mice_number,mice_number))
+  utility_state_cumcount[2,start[1],end[1]] <- ifelse(parameter_result$ztv_list_pair[start[1],end[1]] == "NULL", 0, unlist(parameter_result$ztv_list_pair[start[1],end[1]])[1]==1)
+  
+  for(m in 3:M){
+    utility_state_cumcount[m,,] <- utility_state_cumcount[m-1,,]
+    if(length(unlist(indicator_each_pair[start[m],end[m]]))>=cut_off){
+      if(which(unlist(indicator_each_pair[start[m],end[m]])==m)==1){
+        temp_increment <- 0
+      }else{
+        temp_increment <- parameter_result$ztv_list_pair[start[m],end[m]][[1]][which(unlist(indicator_each_pair[start[m],end[m]])==m)-1]==1
+      }
+      utility_state_cumcount[m,start[m],end[m]] <- utility_state_cumcount[m,start[m],end[m]] + temp_increment
+    }
+  }
+  
+  # ------ plot state separation (v.s. expert_rank)
+  
+  png(paste(plot_path,"real_state_separation_1.png",sep=""), height=600, width=600)
+  matrix1 <- adjm[M,,]-adjm[M_half,,]
+  matrix1[matrix1>40]<- 40
+  matrix1[matrix1==0]<--10
+  myImagePlot(matrix1[expert_rank,expert_rank],xLabels=expert_rank,
+                    yLabels=expert_rank, zlim=c(0,40),colorPalette="Greens") 
+  invisible(dev.off())
+  
+  png(paste(plot_path,"real_state_separation_2.png",sep=""), height=600, width=600)
+  matrix2 <-utility_state_cumcount[M,,]-utility_state_cumcount[M_half,,]
+  matrix2[matrix2>45]<- matrix2[matrix2>45]-5
+  matrix2[matrix2==0]<--10
+  matrix2[(matrix2>=10)&(matrix2<20)]<-matrix2[(matrix2>=10)&(matrix2<20)]+5
+  matrix2[(matrix2>0)&(matrix2<10)]<-matrix2[(matrix2>0)&(matrix2<10)]+10
+  myImagePlot(matrix2[expert_rank,expert_rank],xLabels=expert_rank,
+              yLabels=expert_rank,zlim=c(0,max(matrix2))) 
+  invisible(dev.off())
+  
+  png(paste(plot_path,"real_state_separation_3.png",sep=""), height=600, width=600)
+  matrix3 <-adjm[M,expert_rank,expert_rank]-adjm[M_half,expert_rank,expert_rank]-utility_state_cumcount[M,expert_rank,expert_rank]+utility_state_cumcount[M_half,expert_rank,expert_rank]
+  myImagePlot(matrix3[expert_rank,expert_rank],xLabels=expert_rank,
+              yLabels=expert_rank,smallScale=TRUE,colorPalette="YlOrRd") 
+  invisible(dev.off())
+}
+```
+
+![](../figures/real_state_separation_1.png){ width=30% } ![](../figures/real_state_separation_2.png){ width=30% } ![](../figures/real_state_separation_3.png){ width=30% }
+
+### [Fig] State separation measurements (all cohorts)
+
+Using the frequency win/loss sociomatrices, we calculated the following measures of the strength of the social hierarchy (ranked by using utility state events): [Ref](http://curleylab.psych.columbia.edu/compete.html)
+
+1. Directional Consistency - 0 meaning no directional consistency and 1 indicating that all contests are won by more dominant individuals over more subordinate individuals. 
+
+2. Triangle transitivity -  the proportion of transitive versus intransitive triads within the directed network. The index ranges between 0 and 1, with 1 indicating that all triads are transitive (i.e. there are no cycles).
+
+3. Counts of inconsistencies (I) ranking - Using the after-ranking binary win/loss sociomatrices.
+
+```{r, message = FALSE, results = 'hide', eval=FALSE}
+state_types <- c("total","utility","social") 
+metric_types <- c("dc","ttri","i")
+state_separation_result <- data.frame(array(0,c(10*length(state_types)*length(metric_types),4)))
+colnames(state_separation_result) <- c("cohort", "state", "metric", "value")  
+
+for(current_cohort in c(1:10)){
+  clean_data <- cleanData(full_data[[cohort_names[current_cohort]]])
+  expert_rank <- expertRankHierarchy(full_data[[cohort_names[current_cohort]]])
+  
+  # ------------- Load the saved stan result, plot the inferred parameters and save
+  parameter_result <- stanResult(cohort_number = current_cohort, path = data_path) 
+  
+  # ----- all event data
+  mice_event_array <- array(0,dim=c(clean_data$M,mice_number,mice_number))
+  for(m in 1:clean_data$M){
+    for(i in 1:mice_number){
+      for(j in 1:mice_number){
+        mice_event_array[m,i,j] <- sum(clean_data$start[m]==i&clean_data$end[m]==j)
+      }
+    }
+  }
+  adjm<-apply(mice_event_array,c(2,3),cumsum)
+  
+  # ------ separate active state and inactive
+  utility_state_cumcount <- array(0,dim=c(clean_data$M,mice_number,mice_number))
+  utility_state_cumcount[1,clean_data$start[1],clean_data$end[1]] <- ifelse(parameter_result$ztv_list_pair[clean_data$start[1],clean_data$end[1]] == "NULL", 0, unlist(parameter_result$ztv_list_pair[clean_data$start[1],clean_data$end[1]])[1]==1)
+  
+  for(m in 2:clean_data$M){
+    utility_state_cumcount[m,,] <- utility_state_cumcount[m-1,,]
+    if(length(unlist(clean_data$indicator_each_pair[clean_data$start[m],clean_data$end[m]]))>=cut_off){
+      if(which(unlist(clean_data$indicator_each_pair[clean_data$start[m],clean_data$end[m]])==m)==1){
+        temp_increment <- 0
+      }else{
+        temp_increment <- parameter_result$ztv_list_pair[clean_data$start[m],clean_data$end[m]][[1]][which(unlist(clean_data$indicator_each_pair[clean_data$start[m],clean_data$end[m]])==m)-1]==1
+      }
+      utility_state_cumcount[m,clean_data$start[m],clean_data$end[m]] <- utility_state_cumcount[m,clean_data$start[m],clean_data$end[m]] + temp_increment
+    }
+  }
+  
+  # ------ compute metrics ------
+  state_separation_result$cohort[((current_cohort-1)*length(metric_types)*length(state_types)+1):(current_cohort*length(metric_types)*length(state_types))] <- cohort_names[current_cohort]
+  state_separation_result$metric[((current_cohort-1)*length(metric_types)*length(state_types)+1):(current_cohort*length(metric_types)*length(state_types))] <- rep(c("dc","ttri","i"),length(state_types))
+  
+  state_separation_result$state[((current_cohort-1)*length(metric_types)*length(state_types)+1):(current_cohort*length(metric_types)*length(state_types)-length(metric_types)*2)] <- "total"
+  state_separation_result$value[((current_cohort-1)*length(metric_types)*length(state_types)+1):(current_cohort*length(metric_types)*length(state_types)-length(metric_types)*2)] <- unlist(metricsStateSeparation(start=0, end=clean_data$M, type="total", rank=expert_rank))
+  
+  state_separation_result$state[((current_cohort-1)*length(metric_types)*length(state_types)+length(metric_types)+1):(current_cohort*length(metric_types)*length(state_types)-length(metric_types))] <- "utility"
+  state_separation_result$value[((current_cohort-1)*length(metric_types)*length(state_types)+length(metric_types)+1):(current_cohort*length(metric_types)*length(state_types)-length(metric_types))] <- unlist(metricsStateSeparation(start=0, end=clean_data$M, type="utility", rank=expert_rank))
+  
+  state_separation_result$state[(current_cohort*length(metric_types)*length(state_types)-length(metric_types)+1):(current_cohort*length(metric_types)*length(state_types))] <- "social"
+  state_separation_result$value[(current_cohort*length(metric_types)*length(state_types)-length(metric_types)+1):(current_cohort*length(metric_types)*length(state_types))] <- unlist(metricsStateSeparation(start=0, end=clean_data$M, type="social", rank=expert_rank))
+}
+
+Type <- c(rep("All",10), rep("Active",10), rep("Inactive",10))
+for (i in 1:length(metric_types)) {
+  inds <- list(3)
+  for (j in 1:length(state_types)) {  # t.id <- 1 i <- 1   
+    inds[[j]] <- which(state_separation_result$state == state_types[j] & 
+                    state_separation_result$metric == metric_types[i]) # rows for this sub.type and task.type what we'll plot. 
+  } 
+  assign(metric_types[i],state_separation_result$value[unlist(inds)])
+}  
+df1 <- data.frame(Type,dc,ttri,i)
+
+df1_long <- melt(df1, id.vars=c("Type"))
+df1_long$Type <- factor(df1_long$Type,
+                       levels = c('Inactive','Active','All'),ordered = TRUE)
+df1_long$variable <- factor(df1_long$variable, 
+                            labels = c("Directional consistency",
+                                       "Triangle transitivity", 
+                                       "Inconsistencies in ranking"))
+#then plot
+png(paste(plot_path,"real_box_plot.png",sep=""), height=400, width=700)
+common_layer <- list(scale_fill_manual(values=c('cornsilk', 'cadetblue1', 'lightgreen')), 
+                labs(x = "", y=" "),
+                facet_wrap(~variable),
+                theme_bw(),
+                coord_flip(),
+                theme(panel.background = element_blank(),
+                      text = element_text(size=23),
+                      legend.position="none",
+                      plot.margin = margin(2, 7, -20, -18, "pt")))
+p1 <- ggplot(df1_long[df1_long$variable=="Directional consistency",], 
+             aes(x=Type, y=value, fill=Type)) +
+  geom_boxplot() + 
+  scale_y_continuous(expand = c(0, 0.02), limits = c(0, 1), labels = c("0","0.25","0.5","0.75","1")) +
+  common_layer
+p2 <- ggplot(df1_long[df1_long$variable=="Triangle transitivity",], 
+             aes(x=Type, y=value, fill=Type)) +
+  geom_boxplot() + 
+  scale_y_continuous(expand = c(0, 0.02), limits = c(0, 1), labels = c("0","0.25","0.5","0.75","1")) +
+  common_layer
+p3 <- ggplot(df1_long[df1_long$variable=="Inconsistencies in ranking",], 
+             aes(x=Type, y=value, fill=Type)) +
+  geom_boxplot() + 
+  scale_y_continuous(expand = c(0, 0.12), limits = c(0, 6)) +
+  common_layer
+  
+gridExtra::grid.arrange(p1, p2, p3, nrow=3)
+invisible(dev.off())
+```
+
+![](../figures/real_box_plot.png)
+### [Fig] Community structure (all cohort)
+```{r, results='hide', eval=FALSE}
+```
+![](../figures/real_cluster.png)
+
+### [Fig] Community structure (one cohort)
+```{r, results='hide', eval=FALSE}
+current_cohort <- 5
+clean_data <- cleanData(full_data[[cohort_names[current_cohort]]])
+indicator.each.pair <- clean_data$indicator_each_pair
+parameter_result <- stanResult(cohort_number = current_cohort, 
+                                 path = data_path)
+###separate active state and inactive
+utility_state_cumcount <- array(0,dim=c(clean_data$M,mice_number,mice_number))
+utility_state_cumcount[2,clean_data$start[2],clean_data$end[2]] <- unlist(parameter_result$ztv_list_pair[clean_data$start[2],clean_data$end[2]])[1]==1
+
+for(m in 3:clean_data$M){
+  utility_state_cumcount[m,,] <- utility_state_cumcount[m-1,,]
+  if(length(unlist(indicator.each.pair[clean_data$start[m],clean_data$end[m]]))>=cut_off){
+    if(which(unlist(indicator.each.pair[clean_data$start[m],clean_data$end[m]])==m)==1){
+      temp_incre <- 0
+    }else{
+      temp_incre <- parameter_result$ztv_list_pair[clean_data$start[m],clean_data$end[m]][[1]][which(unlist(indicator.each.pair[clean_data$start[m],clean_data$end[m]])==m)-1]==1
+    }
+    utility_state_cumcount[m,clean_data$start[m],clean_data$end[m]] <- utility_state_cumcount[m,clean_data$start[m],clean_data$end[m]] + temp_incre
+  }
+}
+
+new_S_temp<-array(0,dim=c(clean_data$M,mice_number,mice_number))
+for(m in 1:clean_data$M){
+  for(i in 1:mice_number){
+    for(j in 1:mice_number){
+      new_S_temp[m,i,j] <- sum(clean_data$start[m]==i&clean_data$end[m]==j)
+    }
+  }
+}
+
+adjm<-apply(new_S_temp,c(2,3),cumsum)
+
+g_community1 <- graph_from_adjacency_matrix(adjm[400,,]-utility_state_cumcount[400,,],mode="undirected")
+lec1 <- cluster_leading_eigen(g_community1)
+
+g_community2 <- graph_from_adjacency_matrix(adjm[700,,]-utility_state_cumcount[700,,]-adjm[400,,]+utility_state_cumcount[400,,],mode="undirected")
+lec2 <- cluster_leading_eigen(g_community2)
+
+g_community3 <- graph_from_adjacency_matrix(adjm[clean_data$M,,]-utility_state_cumcount[clean_data$M,,]-adjm[700,,]+utility_state_cumcount[700,,],mode="undirected")
+lec3 <- cluster_leading_eigen(g_community3)
+
+addalpha <- function(colors, alpha=1.0) {
+  r <- col2rgb(colors, alpha=TRUE)
+  # Apply alpha
+  r[4,] <- alpha*255
+  r <- r/255.0
+  return(rgb(r[1,], r[2,], r[3,], r[4,]))
+}
+
+### Make plot for t=1
+######
+png("../figures/real_clustering_1.png", height=600, width=600)
+
+par(mfrow=c(1,1),mgp=c(0,0,0),
+    mar=c(1,0,0,0), oma=c(0,0,0,0))
+
+df1<- data.frame(order = c(4,12,3,5,10,2,7,1,6,9,8,11),
+                 ID = as.character(c(1:12)),
+                 stringsAsFactors = FALSE)
+m <- adjm[400,,]-utility_state_cumcount[400,,]
+dimnames(m) <- list(orig = df1$ID, dest = df1$ID)
+#Sort order of data.frame and matrix for plotting in circos
+df1 <- arrange(df1, order)
+df1$ID <- factor(df1$ID, levels = df1$ID)
+m <- m[levels(df1$ID),levels(df1$ID)]
+### Define ranges of circos sectors and their colors (both of the sectors and the links)
+df1$xmin <- 0
+df1$xmax <- rowSums(m) + colSums(m)
+n <- nrow(df1)
+df1$rcol<- c(colorRampPalette(brewer.pal(name="YlOrBr", n = 8))(10)[c(9:2)],
+                  colorRampPalette(brewer.pal(name="PuRd", n = 8))(10)[6],
+                  colorRampPalette(brewer.pal(name="Blues", n = 8))(10)[c(5,7,9)])#rgb(df1$r, df1$g, df1$b, max = 255)
+df1$lcol<- addalpha(df1$rcol, alpha=rep(0.5,n)) #rgb(df1$r, df1$g, df1$b, alpha=100, max = 255)
+
+### Plot sectors (outer part)
+circos.clear()
+
+### Basic circos graphic parameters
+circos.par(cell.padding=c(0,0,0,0), track.margin=c(0,0.15), start.degree = 90, gap.degree =c(rep(5,7),30,30,rep(5,2),30))
+
+### Sector details
+circos.initialize(factors = df1$ID, xlim = cbind(df1$xmin, df1$xmax))
+### Plot sectors
+circos.trackPlotRegion(ylim = c(0, 1), factors = df1$ID, track.height=0.1,
+                       #panel.fun for each sector
+                       panel.fun = function(x, y) {
+                         #select details of current sector
+                         name = get.cell.meta.data("sector.index")
+                         i = get.cell.meta.data("sector.numeric.index")
+                         xlim = get.cell.meta.data("xlim")
+                         ylim = get.cell.meta.data("ylim")
+                         
+                         #text direction (dd) and adjusmtents (aa)
+                         theta = circlize(mean(xlim), 1.3)[1, 1] %% 360
+                         dd <- ifelse(theta < 90 || theta > 270, "clockwise", "reverse.clockwise")
+                         aa = c(1, 0.5)
+                         if(theta < 90 || theta > 270)  aa = c(0, 0.5)
+                         
+                         #plot ID labels
+                         circos.text(x=mean(xlim), y=1.7, labels=name, facing = dd, cex=2.6,  adj = aa)
+                         
+                         #plot main sector
+                         circos.rect(xleft=xlim[1], ybottom=ylim[1], xright=xlim[2], ytop=ylim[2], 
+                                     col = df1$rcol[i], border=df1$rcol[i])
+                         
+                         #blank in part of main sector
+                         circos.rect(xleft=xlim[1], ybottom=ylim[1], xright=xlim[2]-rowSums(m)[i], ytop=ylim[1]+0.3, 
+                                     col = "white", border = "white")
+                         
+                         #white line all the way around
+                         circos.rect(xleft=xlim[1], ybottom=0.3, xright=xlim[2], ytop=0.32, col = "white", border = "white")
+                         
+                         #plot axis
+                         #circos.axis(labels.cex=0.6, direction = "outside", major.at=seq(from=0,to=floor(df1$xmax)[i],by=5), 
+                         #            minor.ticks=1, labels.away.percentage = 0.15)
+                       })
+### Plot links (inner part)
+### Add sum values to df1, marking the x-position of the first links
+### out (sum1) and in (sum2). Updated for further links in loop below.
+df1$sum1 <- colSums(m)
+df1$sum2 <- numeric(n)
+
+### Create a data.frame of the flow matrix sorted by flow size, to allow largest flow plotted first
+df2 <- cbind(as.data.frame(m),orig=rownames(m),  stringsAsFactors=FALSE)
+df2 <- reshape(df2, idvar="orig", varying=list(1:n), direction="long",
+               timevar="dest", time=rownames(m),  v.names = "m")
+df2 <- arrange(df2,desc(m))
+
+### Keep only the largest flows to avoid clutter
+df2 <- subset(df2, m > quantile(m,0.6))
+
+### Plot links
+for(k in 1:nrow(df2)){
+  #i,j reference of flow matrix
+  i<-match(df2$orig[k],df1$ID)
+  j<-match(df2$dest[k],df1$ID)
+  
+  #plot link
+  circos.link(sector.index1=df1$ID[i], point1=c(df1$sum1[i], df1$sum1[i] + abs(m[i, j])),
+              sector.index2=df1$ID[j], point2=c(df1$sum2[j], df1$sum2[j] + abs(m[i, j])),
+              col = df1$lcol[i])
+  
+  #update sum1 and sum2 for use when plotting the next link
+  df1$sum1[i] = df1$sum1[i] + abs(m[i, j])
+  df1$sum2[j] = df1$sum2[j] + abs(m[i, j])
+}
+dev.off()
+######
+### Make plot for t=2
+######
+png("../figures/real_clustering_2.png", height=600, width=600)
+
+par(mfrow=c(1,1),mgp=c(0,0,0),
+    mar=c(1,0,0,1), oma=c(0,0,0,0))
+
+df1<- data.frame(order = c(9,11,10,2,7,6,4,1,5,3,8),
+                 ID = as.character(c(1:12)[-c(11)]),
+                 stringsAsFactors = FALSE)
+m <- adjm[700,,]-utility_state_cumcount[700,,]-adjm[400,,]+utility_state_cumcount[400,,]
+m <- m[-c(11),-c(11)]
+dimnames(m) <- list(orig = df1$ID, dest = df1$ID)
+#Sort order of data.frame and matrix for plotting in circos
+df1 <- arrange(df1, order)
+df1$ID <- factor(df1$ID, levels = df1$ID)
+m <- m[levels(df1$ID),levels(df1$ID)]
+### Define ranges of circos sectors and their colors (both of the sectors and the links)
+df1$xmin <- 0
+df1$xmax <- rowSums(m) + colSums(m)
+n <- nrow(df1)
+df1$rcol<- c(colorRampPalette(brewer.pal(name="YlOrBr", n = 8))(10)[c(9,7,5)],
+             colorRampPalette(brewer.pal(name="PuRd", n = 8))(10)[c(4,6,8)],
+             colorRampPalette(brewer.pal(name="Blues", n = 8))(18)[c(4,7,10,13,16)+2])#rgb(df1$r, df1$g, df1$b, max = 255)
+df1$lcol<- addalpha(df1$rcol, alpha=rep(0.5,11)) #rgb(df1$r, df1$g, df1$b, alpha=100, max = 255)
+
+### Plot sectors (outer part)
+par(mar=rep(0,4))
+circos.clear()
+
+### Basic circos graphic parameters
+circos.par(cell.padding=c(0,0,0,0), track.margin=c(0,0.15), start.degree = 90, gap.degree =c(rep(5,2),30,rep(5,2),30,rep(5,4),30))
+
+### Sector details
+circos.initialize(factors = df1$ID, xlim = cbind(df1$xmin, df1$xmax))
+### Plot sectors
+circos.trackPlotRegion(ylim = c(0, 1), factors = df1$ID, track.height=0.1,
+                       #panel.fun for each sector
+                       panel.fun = function(x, y) {
+                         #select details of current sector
+                         name = get.cell.meta.data("sector.index")
+                         i = get.cell.meta.data("sector.numeric.index")
+                         xlim = get.cell.meta.data("xlim")
+                         ylim = get.cell.meta.data("ylim")
+                         
+                         #text direction (dd) and adjusmtents (aa)
+                         theta = circlize(mean(xlim), 1.3)[1, 1] %% 360
+                         dd <- ifelse(theta < 90 || theta > 270, "clockwise", "reverse.clockwise")
+                         aa = c(1, 0.5)
+                         if(theta < 90 || theta > 270)  aa = c(0, 0.5)
+                         
+                         #plot ID labels
+                         circos.text(x=mean(xlim), y=1.7, labels=name, facing = dd, cex=2.6,  adj = aa)
+                         
+                         #plot main sector
+                         circos.rect(xleft=xlim[1], ybottom=ylim[1], xright=xlim[2], ytop=ylim[2], 
+                                     col = df1$rcol[i], border=df1$rcol[i])
+                         
+                         #blank in part of main sector
+                         circos.rect(xleft=xlim[1], ybottom=ylim[1], xright=xlim[2]-rowSums(m)[i], ytop=ylim[1]+0.3, 
+                                     col = "white", border = "white")
+                         
+                         #white line all the way around
+                         circos.rect(xleft=xlim[1], ybottom=0.3, xright=xlim[2], ytop=0.32, col = "white", border = "white")
+                         
+                         #plot axis
+                         #circos.axis(labels.cex=0.6, direction = "outside", major.at=seq(from=0,to=floor(df1$xmax)[i],by=5), 
+                         #            minor.ticks=1, labels.away.percentage = 0.15)
+                       })
+### Plot links (inner part)
+### Add sum values to df1, marking the x-position of the first links
+### out (sum1) and in (sum2). Updated for further links in loop below.
+df1$sum1 <- colSums(m)
+df1$sum2 <- numeric(n)
+
+### Create a data.frame of the flow matrix sorted by flow size, to allow largest flow plotted first
+df2 <- cbind(as.data.frame(m),orig=rownames(m),  stringsAsFactors=FALSE)
+df2 <- reshape(df2, idvar="orig", varying=list(1:n), direction="long",
+               timevar="dest", time=rownames(m),  v.names = "m")
+df2 <- arrange(df2,desc(m))
+
+### Keep only the largest flows to avoid clutter
+df2 <- subset(df2, m > quantile(m,0.6))
+
+### Plot links
+for(k in 1:nrow(df2)){
+  #i,j reference of flow matrix
+  i<-match(df2$orig[k],df1$ID)
+  j<-match(df2$dest[k],df1$ID)
+  
+  #plot link
+  circos.link(sector.index1=df1$ID[i], point1=c(df1$sum1[i], df1$sum1[i] + abs(m[i, j])),
+              sector.index2=df1$ID[j], point2=c(df1$sum2[j], df1$sum2[j] + abs(m[i, j])),
+              col = df1$lcol[i])
+  
+  #update sum1 and sum2 for use when plotting the next link
+  df1$sum1[i] = df1$sum1[i] + abs(m[i, j])
+  df1$sum2[j] = df1$sum2[j] + abs(m[i, j])
+}
+dev.off()
+######
+### Make plot for t=3
+######
+png("../figures/real_clustering_3.png", height=600, width=600)
+
+par(mfrow=c(1,1),mgp=c(0,0,0),
+    mar=c(0,0,0,1), oma=c(0,0,0,0))
+
+df1<- data.frame(order = c(9,12,10,2,5,11,4,1,8,3,6,7),
+                 ID = as.character(c(1:12)),
+                 stringsAsFactors = FALSE)
+m <- adjm[clean_data$M,,]-utility_state_cumcount[clean_data$M,,]-adjm[700,,]+utility_state_cumcount[700,,]
+dimnames(m) <- list(orig = df1$ID, dest = df1$ID)
+#Sort order of data.frame and matrix for plotting in circos
+df1 <- arrange(df1, order)
+df1$ID <- factor(df1$ID, levels = df1$ID)
+m <- m[levels(df1$ID),levels(df1$ID)]
+### Define ranges of circos sectors and their colors (both of the sectors and the links)
+df1$xmin <- 0
+df1$xmax <- rowSums(m) + colSums(m)
+n <- nrow(df1)
+df1$rcol<- c(colorRampPalette(brewer.pal(name="YlOrBr", n = 8))(10)[c(9,7,5,3)],
+             colorRampPalette(brewer.pal(name="Blues", n = 8))(22)[c(4,7,10,13,15,17,19,22)])#rgb(df1$r, df1$g, df1$b, max = 255)
+df1$lcol<- addalpha(df1$rcol, alpha=rep(0.5,n)) #rgb(df1$r, df1$g, df1$b, alpha=100, max = 255)
+
+### Plot sectors (outer part)
+par(mar=rep(0,4))
+circos.clear()
+
+### Basic circos graphic parameters
+circos.par(cell.padding=c(0,0,0,0), track.margin=c(0,0.15), start.degree = 90, gap.degree =c(rep(5,3),30,rep(5,7),30))
+
+### Sector details
+circos.initialize(factors = df1$ID, xlim = cbind(df1$xmin, df1$xmax))
+### Plot sectors
+circos.trackPlotRegion(ylim = c(0, 1), factors = df1$ID, track.height=0.1,
+                       #panel.fun for each sector
+                       panel.fun = function(x, y) {
+                         #select details of current sector
+                         name = get.cell.meta.data("sector.index")
+                         i = get.cell.meta.data("sector.numeric.index")
+                         xlim = get.cell.meta.data("xlim")
+                         ylim = get.cell.meta.data("ylim")
+                         
+                         #text direction (dd) and adjusmtents (aa)
+                         theta = circlize(mean(xlim), 1.3)[1, 1] %% 360
+                         dd <- ifelse(theta < 90 || theta > 270, "clockwise", "reverse.clockwise")
+                         aa = c(1, 0.5)
+                         if(theta < 90 || theta > 270)  aa = c(0, 0.5)
+                         
+                         #plot ID labels
+                         circos.text(x=mean(xlim), y=1.7, labels=name, facing = dd, cex=2.6,  adj = aa)
+                         
+                         #plot main sector
+                         circos.rect(xleft=xlim[1], ybottom=ylim[1], xright=xlim[2], ytop=ylim[2], 
+                                     col = df1$rcol[i], border=df1$rcol[i])
+                         
+                         #blank in part of main sector
+                         circos.rect(xleft=xlim[1], ybottom=ylim[1], xright=xlim[2]-rowSums(m)[i], ytop=ylim[1]+0.3, 
+                                     col = "white", border = "white")
+                         
+                         #white line all the way around
+                         circos.rect(xleft=xlim[1], ybottom=0.3, xright=xlim[2], ytop=0.32, col = "white", border = "white")
+                         
+                         #plot axis
+                         #circos.axis(labels.cex=0.6, direction = "outside", major.at=seq(from=0,to=floor(df1$xmax)[i],by=5), 
+                         #            minor.ticks=1, labels.away.percentage = 0.15)
+                       })
+### Plot links (inner part)
+### Add sum values to df1, marking the x-position of the first links
+### out (sum1) and in (sum2). Updated for further links in loop below.
+df1$sum1 <- colSums(m)
+df1$sum2 <- numeric(n)
+
+### Create a data.frame of the flow matrix sorted by flow size, to allow largest flow plotted first
+df2 <- cbind(as.data.frame(m),orig=rownames(m),  stringsAsFactors=FALSE)
+df2 <- reshape(df2, idvar="orig", varying=list(1:n), direction="long",
+               timevar="dest", time=rownames(m),  v.names = "m")
+df2 <- arrange(df2,desc(m))
+
+### Keep only the largest flows to avoid clutter
+df2 <- subset(df2, m > quantile(m,0.6))
+
+### Plot links
+for(k in 1:nrow(df2)){
+  #i,j reference of flow matrix
+  i<-match(df2$orig[k],df1$ID)
+  j<-match(df2$dest[k],df1$ID)
+  
+  #plot link
+  circos.link(sector.index1=df1$ID[i], point1=c(df1$sum1[i], df1$sum1[i] + abs(m[i, j])),
+              sector.index2=df1$ID[j], point2=c(df1$sum2[j], df1$sum2[j] + abs(m[i, j])),
+              col = df1$lcol[i])
+  
+  #update sum1 and sum2 for use when plotting the next link
+  df1$sum1[i] = df1$sum1[i] + abs(m[i, j])
+  df1$sum2[j] = df1$sum2[j] + abs(m[i, j])
+}
+dev.off()
+```
+
+![](../figures/real_clustering_1.png){ width=30% } ![](../figures/real_clustering_2.png){ width=30% } ![](../figures/real_clustering_3.png){ width=30% }
