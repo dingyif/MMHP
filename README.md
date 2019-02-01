@@ -4,7 +4,7 @@ This repository contains the code for the following paper including numerical ex
 
 - Markov-Modulated Hawkes Processes for Sporadic and Bursty Event Occurances
 
-In this paper, we propose a Markov Modulated Hawkes Process (MMHP) model for modeling such a mixture of different event dynamics and develop corresponding inference algorithms. Numerical experiments using synthetic data and data from an animal behavior study demonstrate that MMHP with the proposed estimation algorithms consistently re- cover the true hidden state process in simulations, and separately captures distinct event dynamics that reveal interesting social structure in the real data.
+Modeling event dynamics is central to many disciplines. Patterns in observed event arrival times are commonly modeled using point processes. Such event arrival data often exhibits self-exciting, heterogeneous and sporadic trends, which is challenging for conventional models. It is reasonable to assume that there exists a hidden state process that drives different event dynamics at different states. In this paper, we propose a Markov Modulated Hawkes Process (MMHP) model for learning such a mixture of event dynamics and develop corresponding inference algorithms. Numerical experiments using synthetic data and data from an animal behavior study demonstrate that MMHP with the proposed estimation algorithms consistently recover the true hidden state process in simulations, and separately captures distinct event dynamics that reveal interesting social structures in the real data.
 
 The structure of this repository is as follows:
 
