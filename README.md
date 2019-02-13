@@ -10,6 +10,7 @@ The structure of this repository is as follows:
 
 - code
 	- Rmd/: the detailed R scripts withe explanation that to generate the results shown in the paper. 
+	- html/: [preview](https://htmlpreview.github.io/?https://github.com/wendy9217/MMHP/blob/master/code/main.html)
 
 - lib
 	- Rcode/: directory containing the R functions that are called from `main.Rmd` scripts. 
