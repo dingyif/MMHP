@@ -12,7 +12,6 @@ drawUniMMHPIntensityPaper<-function(object,simulation,yupper=10,add=FALSE,color=
   state <- simulation$z
   state_time <- simulation$x
   lambda0 <- object$lambda0
-  lambda1 <- object$lambda1
   alpha <- object$alpha
   beta <- object$beta
   
@@ -36,7 +35,7 @@ drawUniMMHPIntensityPaper<-function(object,simulation,yupper=10,add=FALSE,color=
       hawkes_time <- t[t>=state_time[i]&t<state_time[i+1]]
       if(i==1) hawkes_time <- hawkes_time[-1]
       history <- t[t<state_time[i]]
-      drawHPIntensityPaper(lambda1,i,alpha,beta,state_time[i],state_time[i+1],history[-1],hawkes_time,color=color,line.width=line.width)
+      drawHPIntensityPaper(lambda0,i,alpha,beta,state_time[i],state_time[i+1],history[-1],hawkes_time,color=color,line.width=line.width)
     }else{
       segments(x0=state_time[i],x1=state_time[i+1], y0=lambda0, lty=1,col=color,lwd=line.width)
     }

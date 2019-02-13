@@ -26,7 +26,8 @@ clusterAnalysis <- function(start, end, state="social"){
   }
   
   g_community <- graph_from_adjacency_matrix(input_matrix,mode="undirected")
-  cluster_temp <- cluster_leading_eigen(g_community, options=list(maxiter=10000))
+  #cluster_temp <- cluster_leading_eigen(g_community, options=list(maxiter=10000))
+  cluster_temp <- handelExceptionCluster(g_community)
   membership <- cluster_temp$membership #cluster_leading_eigen
   number_cluster <- length(unique(membership))
   cluster_member_count <- numeric(number_cluster)
@@ -61,4 +62,14 @@ clusterAnalysis <- function(start, end, state="social"){
   return(normalized_between_count/normalized_within_count)
   ## return(list(normalized_within_count=normalized_within_count,normalized_all_count=normalized_all_count))
   #return(cluster_modularity)
+}
+
+handelExceptionCluster <- function(g_community, max_iter = 10){
+  return_result <- try(log("error"), silent = TRUE)
+  i <- 1
+  while(class(return_result) == "try-error" & i<max_iter){
+    return_result <- try(cluster_leading_eigen(g_community))
+    i <- i+1
+  }
+  return(return_result)
 }
