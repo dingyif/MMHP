@@ -16,8 +16,7 @@ The structure of this repository is as follows:
 	- Rcode: directory containing the R functions that are called from `main.Rmd` scripts. 
 
 - data
-
-        - Rdata: include 10 cohorts mice interaction data
+	- Rdata: include 10 cohorts mice interaction data. 
 	- **Reference**: Williamson, C. M., Lee, W., and Curley, J. P. (2016). Temporal dynamics of social hierarchy formation and maintenance in male mice. Animal Behaviour, 115:259–272.
   
 - fig
