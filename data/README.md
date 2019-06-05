@@ -1,8 +1,6 @@
 # Real Data for MMHP model
 
-This repository contains the data of ten cohorts mice study from the paper Williamson(2016). Data was collected by the [Curley lab](https://labs.la.utexas.edu/curley/). All procedures were conducted with approval from the Columbia University Institutional Animal Care and Use Committee. If you use the dataset in published research, please cite the following reference:
-
-Williamson, Cait M., Won Lee, and James P. Curley. "Temporal dynamics of social hierarchy formation and maintenance in male mice." Animal behaviour 115 (2016): 259-272.
+This repository contains the data of ten cohorts mice study from the paper Williamson(2016).
 
 `mice.RData` is constructed by a list of R dataframe. Each dataframe records the observations for each cohort. 
 

@@ -6,10 +6,10 @@ addalpha <- function(colors, alpha=1.0) {
   return(rgb(r[1,], r[2,], r[3,], r[4,]))
 }
 
-myCircularPlot <- function(cur.matrix, cur.order, cur.color, cur.gap){
+myCircularPlot <- function(cur.matrix, cur.order, cur.color, cur.gap, cur.ID = c(1:12)){
   par(mfrow=c(1,1),mgp=c(0,0,0), mar=c(1,0,0,0), oma=c(0,0,0,0))
   df1<- data.frame(order = cur.order,
-                   ID = ifelse(length(cur.order)==12,as.character(c(1:12)),as.character(c(1:12)[-c(11)])),
+                   ID = cur.ID,
                    stringsAsFactors = FALSE)
   if(length(cur.order)==12){
     m <- cur.matrix
@@ -18,9 +18,9 @@ myCircularPlot <- function(cur.matrix, cur.order, cur.color, cur.gap){
                      stringsAsFactors = FALSE)
     
   }else{
-    m <- cur.matrix[-c(11),-c(11)]
+    m <- cur.matrix
     df1<- data.frame(order = cur.order,
-                 ID = as.character(c(1:12)[-c(11)]),
+                 ID = cur.ID,
                  stringsAsFactors = FALSE)
   }
   dimnames(m) <- list(orig = df1$ID, dest = df1$ID)

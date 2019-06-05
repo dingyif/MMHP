@@ -1,0 +1,1169 @@
+plot(dbeta(2,3))
+plot(dbeta(2,2,3))
+plot(dbeta((0,1),2,3))
+lines(x,dbeta(x,2,3))
+lines(x=0,dbeta(x,2,3))
+x<-seq(0,1)
+x
+x<-seq(0,1,length=100)
+lines(x,dbeta(x,2,3))
+lines(plot(x,dbeta(x,2,3)))
+lines(x,dbeta(x,2,3),lwd=2)
+lines(plot(x,dbeta(x,2,3)),lwd=2)
+plot(x,dbeta(x,2,3),type="1")
+y<-dbeta(x,2,3)
+plot(x,y)
+plot(x,y,type="1")
+plot
+?plot
+plot(x,y,type="l")
+x <- seq(-4, 4, length=100)#
+hx <- dnorm(x)#
+#
+degf <- c(1, 3, 8, 30)#
+colors <- c("red", "blue", "darkgreen", "gold", "black")#
+labels <- c("df=1", "df=3", "df=8", "df=30", "normal")#
+#
+plot(x, hx, type="l", lty=2, xlab="x value",#
+  ylab="Density", main="Comparison of t Distributions")#
+#
+for (i in 1:4){#
+  lines(x, dt(x,degf[i]), lwd=2, col=colors[i])#
+}#
+#
+legend("topright", inset=.05, title="Distributions",#
+  labels, lwd=2, lty=c(1, 1, 1, 1, 2), col=colors)
+x<-seq(0,1,length=100)
+a<-1
+b<-(1,2,3,4,5,8,12)
+b<-c(1,2,3,4,5,8,12)
+colors<-c("red","blue","darkgreen","gold","black","purple","grey")
+labels<-c("b=1","b=2""b=3""b=4""b=5""b=8""b=12")
+labels<-c("b=1","b=2","b=3","b=4","b=5","b=8","b=12")
+for(i in 1:7){}
+for(i in 1:7){plot}
+for(i in 1:7){
+y<-dbeta(x,a,b[i])
+plot(x,y,type="l",col=colors[i])
+}
+for(i in 1:7){#
+lines(x,dbeta(x,a,b[i]),lwd=2,col=colors[i])#
+}
+for(i in 1:7){#
+y<-0#
+y<-dbeta(x,a,b[i])#
+plot(x,y,type="l",col=colors[i])#
+}
+y<-dbeta(x,a,b[1])#
+plot(x,y,type="l",col=colors[1])
+a
+b
+y<-dbeta(x,a,b[2])#
+plot(x,y,type="l",col=colors[1])
+y<-dbeta(x,a,b[3])#
+plot(x,y,type="l",col=colors[1])
+x<-seq(0,1,length=100)#
+y<-dbeta(x,2,3)#
+plot(x,y,type=“l")
+x<-seq(0,1,length=100)#
+y<-dbeta(x,2,3)
+y
+plot(x,y,type="l")
+y<-dbeta(x,2,b[2])
+y
+plot(x,y,type="l")
+x<-seq(0,1,length=100)#
+for(i in 1:7){#
+y<-dbeta(x,2,b[i])#
+plot(x,y,type=“l”)#
+}
+for(i in 1:7){#
+y<-dbeta(x,2,b[i])#
+plot(x,y,type=“l”)#
+}
+for(i in 1:7){}
+for(i in 1:7){
+y<-dbeta(x,2,b[i])
+plot(x,y,type=“l”)
+for(i in 1:7){
+y<-dbeta(x,2,b[i])
+plot(x,y,type="l")
+}
+?plot
+x <- seq(0, 1, length=100)#
+hx <- dbeta(x,1,1)#
+#
+degf <- c(1, 3, 8, 30)#
+colors <- c("red", "blue", "darkgreen", "gold", "black")#
+labels <- c("df=1", "df=3", "df=8", "df=30", "normal")#
+#
+plot(x, hx, type="l", lty=2, xlab="x value",#
+  ylab="Density", main="Comparison of t Distributions")#
+#
+for (i in 1:4){#
+  lines(x, dbeta(x,1,degf[i]), lwd=2, col=colors[i])#
+}
+x <- seq(0, 1, length=100)#
+hx <- dbeta(x,1,1)#
+#
+degf <- c(1, 3, 8, 30)#
+colors <- c("red", "blue", "darkgreen", "gold", "black")#
+labels <- c("df=1", "df=3", "df=8", "df=30", "normal")#
+#
+plot(x, hx, type="l", lty=2, xlab="x value",#
+  ylab="Density", main="Comparison of t Distributions")
+x
+y<-dbeta(x,1,1)
+plot(x,y,type="l")
+y<-dbeta(x,2,3)
+plot(x,y,type="l")
+y<-dbeta(x,1,3)
+plot(x,y,type="l")
+for (i in 1:4){#
+  lines(x, dbeta(x,2,degf[i]), lwd=2, col=colors[i])#
+}
+degf <- c(2,3,4,8,10,30)#
+colors <- c("red", "blue", "darkgreen", "gold", “purple”,”orange”)#
+y<-dbeta(x,2,1)#
+plot(x, y, type="l", lty=2, xlab="x value",#
+  ylab="Density", main="Comparison of beta Distributions")#
+#
+for (i in 1:6){#
+  lines(x, dbeta(x,2,degf[i]), lwd=2, col=colors[i])#
+}
+degf <- c(2,3,4,8,10,30)#
+colors <- c("red", "blue", "darkgreen", "gold", “purple”,”orange”)#
+y<-dbeta(x,2,1)#
+plot(x, y, type="l", lty=2, ylim=v(0,10),xlab="x value",#
+  ylab="Density", main="Comparison of beta Distributions")#
+#
+for (i in 1:6){#
+  lines(x, dbeta(x,2,degf[i]), lwd=2, col=colors[i])#
+}#
+#
+legend("topright", inset=.05, title="Distributions",#
+  labels, lwd=2, lty=c(1, 1, 1, 1, 2), col=colors)
+degf <- c(2,3,4,8,10,30)#
+colors <- c("red", "blue", "darkgreen", "gold", “purple”,”orange”)#
+y<-dbeta(x,2,1)#
+png("fig1.png", width = 400, height = 600)#
+plot(x, y, type="l", lty=2, ylim=v(0,10),xlab="x value",#
+  ylab="Density", main="Comparison of beta Distributions")#
+#
+for (i in 1:6){#
+  lines(x, dbeta(x,2,degf[i]), lwd=2, col=colors[i])#
+}
+degf <- c(2,3,4,8,10,30)#
+colors <- c("red", "blue", "darkgreen", “gold”,“purple”,”orange”)#
+y<-dbeta(x,2,1)#
+png("fig1.png", width = 400, height = 600)#
+plot(x, y, type="l", lty=2, ylim=v(0,10),xlab="x value",#
+  ylab="Density", main="Comparison of beta Distributions")#
+#
+for (i in 1:6){#
+  lines(x, dbeta(x,2,degf[i]), lwd=2, col=colors[i])#
+}
+degf <- c(2,3,4,8,10,30)#
+colors <- c("red", "blue", "darkgreen", “gold”,“purple”,”orange”)#
+y<-dbeta(x,2,1)#
+png("fig1.png", width = 400, height = 600)#
+plot(x, y, type="l", lty=2, ylim=v(0,10),xlab="x value",#
+  ylab="Density", main="Comparison of beta Distributions")
+colors<-c("red","blue","darkgreen","gold","purple","orange")
+y<-dbeta(x,2,1)#
+png("fig1.png", width = 400, height = 600)#
+plot(x, y, type="l", lty=2, ylim=v(0,10),xlab="x value",#
+  ylab="Density", main="Comparison of beta Distributions")
+y<-dbeta(x,2,1)#
+png("fig1.png", width = 400, height = 600)#
+plot(x, y, type="l", lty=2, xlab="x value",#
+  ylab="Density", main="Comparison of beta Distributions")
+for (i in 1:6){#
+  lines(x, dbeta(x,2,degf[i]), lwd=2, col=colors[i])#
+}
+y<-dbeta(x,2,1)#
+png("fig1.png", width = 400, height = 600)#
+plot(x, y, type="l", lty=2, xlab="x value",#
+  ylab="Density", main="Comparison of beta Distributions")
+x<-seq(0,1,length=400)
+degf<-c(2,3,4,8,10,15)
+colors<-("red","yellow","blue","green","purple","grey")
+colors<-c("red","yellow","blue","green","purple","grey")
+y<-dbeta(x,2,1)
+png("fig1.png", width = 400, height = 600)
+plot(x,y,type="l",lty=2,xlab="x value",ylab="Density")
+for(i in 1:6){
+lines(x,dbeta(x,2,degf[i]),lwd=2,col=colors[i])
+}
+plot(x,y,type="l",lty=2,xlab="x value",ylab="Density")
+x<-seq(0,1,length=400)#
+degf<-c(2,3,4,8,10,15)#
+colors<-c("red","yellow","blue","green","purple","grey")#
+y<-dbeta(x,2,1)#
+plot(x,y,type="l",lty=2,xlab="x value",ylab="Density")#
+for(i in 1:6){#
+ lines(x,dbeta(x,2,degf[i]),lwd=2,col=colors[i])#
+}
+plot(x,y,type="l",lty=2,ylim=c(0,10),xlab="x value",ylab="Density")#
+for(i in 1:6){#
+ lines(x,dbeta(x,2,degf[i]),lwd=2,col=colors[i])#
+}
+plot(x,y,type="l",lty=2,ylim=c(0,6.5),xlab="x value",ylab="Density")#
+for(i in 1:6){#
+ lines(x,dbeta(x,2,degf[i]),lwd=2,col=colors[i])#
+}
+require(MASS)#
+require(reshape2)#
+require(ggplot2)#
+set.seed(12345)#
+#calculate covariance matrix#
+SigmaFun<-function(x1,x2,l=1){#
+  Sigma<-matrix(rep(0,length(x1)*length(x2)),nrow=length(x1))#
+  for(i in 1:nrow(Sigma)){#
+    for(j in 1:ncol(Sigma)){#
+      Sigma[i,j]<-exp(-0.5*(x1[i]-x2[j])^2/l^2)#
+    }#
+  }#
+  return(Sigma)#
+}#
+#define n points where we want to generate GP#
+x.star<-seq(-5,5,len=50)#
+sigma<-SigmaFun(x.star,x.star)#
+values<-mvrnorm(3,rep(0,length(x.star)),sigma)#
+dat<-data.frame(x=x.star,t(values))#
+dat<-melt(dat,id="x")#
+head(dat)#
+fig1<-ggplot(dat,aes(x=x,y=value))+geom_rect(xmin=-Inf,xmax=Inf,ymin=-2,ymax=2,fill="grey80")+geom_line(aes(group=variable))+theme_bw()+scale_y_continuous(lim=c(-3,3),name="output,f(x)")+xlab("input,x")#
+fig1#
+obs<-data.frame(x=c(3,-2,1,0,2),#
+                y=c(-2,-1,0,2,1))#
+#conditional probability of data without noise#
+cov_xx_inv<-solve(SigmaFun(obs$x,obs$x))#
+A<-SigmaFun(x.star,obs$x)%*%cov_xx_inv%*%obs$y#
+B<-SigmaFun(x.star,x.star)-SigmaFun(x.star,obs$x)%*%cov_xx_inv%*%SigmaFun(obs$x,x.star)#
+values<-mvrnorm(3,A,B)#
+dat<-data.frame(x=x.star,t(values))#
+dat<-melt(dat,id="x")#
+fig2<-ggplot(dat,aes(x=x,y=value))+geom_ribbon(data=NULL,aes(x=x.star,y=A,ymin=(A-2*sqrt(diag(B))),ymax=(A+2*sqrt(diag(B)))),fill="grey80")+geom_line(aes(color=variable))+geom_line(data=NULL,aes(x=x.star,y=A),size=1)+geom_point(data=obs,aes(x=x,y=y))+scale_y_continuous(lim=c(-3,3),name="output,f(x)")+xlab("input,x")#
+fig2#
+#adding Gaussian noise#
+sigma.n<-1.5#
+cov_xx_inv<-solve(cov(obs$x,obs$x)+sigma.n^2*diag(1,length(obs$x)))#
+A<-SigmaFun(x.star,obs$x)%*%cov_xx_inv%*%obs$y#
+B<-SigmaFun(x.star,x.star)-SigmaFun(x.star,obs$x)%*%cov_xx_inv%*%SigmaFun(obs$x,x.star)#
+values<-mvrnorm(3,A,B)#
+dat<-data.frame(x=x.star,t(values))#
+dat<-melt(dat,id="x")#
+fig3<-ggplot(dat,aes(x=x,y=value))+geom_ribbon(data=NULL,aes(x=x.star,y=A,ymin=(A-2*sqrt(diag(B))),ymax=(A+2*sqrt(diag(B)))),fill="grey80")+geom_line(aes(color=variable))+geom_line(data=NULL,aes(x=x.star,y=A),size=1)+geom_point(data=obs,aes(x=x,y=y))+scale_y_continuous(lim=c(-3,3),name="output,f(x)")+xlab("input,x")#
+fig3
+install.packages("‘linprog")#
+require(linprog)#
+T=matrix(c(0,1/2,0,1/2,0,1/2,0,1/2,0),nrow=3)#
+n=3#
+ntilde=3#
+t=0.03#
+lambda=0.1#
+alpha=0.1#
+I=diag(n)#
+Itilde=diag(ntilde)#
+mzero=matrix(0,nrow=ntilde,ncol=ntilde)#
+e=c(rep(1,ntilde))#
+czero=c(rep(0,ntilde))#
+f=matrix(nrow=ntilde,ncol=ntilde)#
+R=matrix(nrow=ntilde,ncol=ntilde)#
+s=matrix(nrow=ntilde,ncol=1)#
+p=matrix(nrow=ntilde,ncol=1)#
+P=solve(I+lambda*I-T)#
+for(i in 1:ntilde){#
+  for (j in 1:ntilde){#
+    f[i,j]=alpha/P[i,i]*P[j,i]#
+    if(f[i,j]>t){#
+      R[j,i]=1#
+    }#
+    else{#
+      R[j,i]=0#
+    }#
+  }#
+}#
+CR=cbind(R,I)#
+A=c(rep(1,ntilde),rep(0,ntilde))#
+b1=c(rep(1,ntilde),rep(0,ntilde))#
+b2=c(rep(0,ntilde*2))#
+A1=cbind(rbind(Itilde,R),rbind(mzero,-Itilde)) #
+A2=cbind(rbind(Itilde,R),rbind(mzero,Itilde))#
+A0=rbind(A1,-A2)#
+b0=rbind(b1,b2)#
+x=solveLP(A,b0,A0,maximum=F)
+A0
+b0
+b0=c(rep(1,ntilde),rep(0,ntilde*3))
+b0
+x=solveLP(A,b0,A0,maximum=F)
+x
+Yes
+Y
+install.packages("Rlab")
+library("Rlab")
+rbern(3,0.5)
+Sys.setenv(MAKEFLAGS = "-j4")
+install.packages("rstan", dependencies = TRUE)
+library(rstan)
+rstan_options(auto_write = TRUE)#
+options(mc.cores = parallel::detectCores())
+library(igraph)
+if (!require("pacman")) install.packages("pacman")#
+pacman::p_load(rstan, SPIn, knitr, MMHP, beeswarm,#
+               grid, png, gridExtra)#
+#
+#Change directory#
+setwd("~/Dropbox/Thesis/code/part1/main")#
+#
+#Specify directory for saving simulation and model fitting data (change based on your own system)#
+old_data_path <- '../../../../../Google Drive/paper_data_2/simulation/' ##TODO DELETE#
+data_path <- '../../../../../Google Drive/thesis_data/part1/simulation/'#
+#
+#Specify directory for saving plots#
+plot_path <- '../fig/'#
+#
+#Load source code from ../lib/ #
+# source('../lib/mmhp.R')#
+# source('../lib/mmpp.R')#
+# source('../lib/handelExceptionMmhpsd.R')#
+# source('../lib/intensityPlot.R')#
+# source('../lib/simulationPlots.R')#
+#
+#Define global variables#
+mmhp_par_name <- c("lambda0","lambda1","alpha","beta","q1","q2") #q2 corresponds to q0 in the paper#
+no_vec_events <- c(50,100,200,500)#
+no_sim <- 50#
+################################################################################
+#Specify the r chunks that need to run#
+################################################################################
+chunk_run_list <- list(run.simulation=FALSE, #if you haven't simulate the data before, change this to TRUE#
+                       plot.simulation=FALSE, #if you haven't plot before, change this to TRUE#
+                       run.real=FALSE,#
+                       plot.real=FALSE)
+load(paste(old_data_path,"common_pars_result_50.Rdata",sep=""))
+object <-list(lambda0=0.9, lambda1=1.1, alpha=0.8, beta=1.2, q1=0.4, q2=0.2, delta=c(1/3,2/3))#
+#
+for(no_events in no_vec_events[1]){#
+  #common.pars.processes <- rep(list(),no_sim)#
+  common.pars.stan.result <- rep(list(),no_sim)#
+  common.pars.stan.time <- rep(NA,no_sim)#
+  for(i in 1:no_sim){#
+    #common.pars.processes[i][[1]] <- simulate.mmhp(object,nsim=no_events)#
+    current_N <- length(common.pars.processes[i][[1]]$tau)#
+    current_interevent <- common.pars.processes[i][[1]]$tau[-1]-common.pars.processes[i][[1]]$tau[-current_N]#
+    start_time <- Sys.time()#
+    fit_mmhp <- stan("../lib/sim_mmhp.stan", #
+                     data=list(N=current_N-1, interevent=current_interevent,  #
+                               event=cumsum(current_interevent), delta_1=0.5),#
+                     refresh = -1, iter=1000, chains=4, control=list(adapt_delta=0.95))#
+    end_time <- Sys.time()#
+    common.pars.stan.time[i] <- end_time-start_time#
+    sim_mmhp <- extract(fit_mmhp)#
+    common.pars.stan.result[i][[1]] <- list(lambda0=sim_mmhp$lambda0,#
+                                            lambda1=sim_mmhp$lambda1,#
+                                            alpha=sim_mmhp$alpha,#
+                                            beta=sim_mmhp$beta,#
+                                            q1=sim_mmhp$q1,#
+                                            q2=sim_mmhp$q2,#
+                                            lp__=sim_mmhp$lp__)#
+  }#
+  save(common.pars.processes,common.pars.stan.result,common.pars.stan.time,object,#
+       file=paste(data_path,"common_pars_result_",no_events,".Rdata",sep=""))#
+}
+mmhp_par_name
+for(no_events in no_vec_events[1]){#
+  #-------- load estimation results#
+  # if(!file.exists(paste(data_path,"common_pars_result_",no_events,".Rdata",sep=""))){#
+  #   print("The Rdata not exist, please run the chunk \'sim.parameter.1\`")#
+  # }else{#
+  #   load(paste(data_path,"common_pars_result_",no_events,".Rdata",sep=""))#
+  # }#
+  #-------- summarize estimation results#
+  common.pars.array <- array(NA,dim=c(no_sim,length(c),3))#
+  for(i in 1:no_sim){#
+    for(j in 1:length(mmhp_par_name)){#
+      common.pars.array[i,j,1] <- median(unlist(common.pars.stan.result[i][[1]][mmhp_par_name[j]])[1001:2000])#
+      common.pars.array[i,j,2] <- min(unlist(common.pars.stan.result[i][[1]][mmhp_par_name[j]])[1001:2000])#
+      common.pars.array[i,j,3] <- max(unlist(common.pars.stan.result[i][[1]][mmhp_par_name[j]])[1001:2000])#
+    }#
+  }#
+  #-------- plot each parameter#
+  ylim_ub <- c(3,2,2,1.2,4,5)#
+  xlim_ub <- c(2,4,5,5,3,3)#
+  par_name_expression <- c(expression(lambda[0]),expression(lambda[1]),expression(alpha),expression(beta),expression(q[1]),expression(q[0]))#
+#
+  for(j in c(1:length(mmhp_par_name))){#
+    if(j == length(mmhp_par_name)){#
+      png(paste(plot_path,"sim_par_",no_events,"_q0.png",sep=""), height=420, width=400)#
+    }else{#
+      png(paste(plot_path,"sim_par_",no_events,"_",mmhp_par_name[j],".png",sep=""), height=420, width=400)#
+    }#
+    par(mfrow=c(1,1),tcl=0.2,mgp=c(1.8,0.5,0),#
+        mar=c(5.25,4.5,3.5,0.5))#
+    lowerLimit <- min(common.pars.array[,j,2])#
+    upperLimit <- xlim_ub[j]#
+    plot(1,4,xlim=c(0,xlim_ub[j]),ylim=c(0,ylim_ub[j]), type="n",xlab="",ylab="Density",cex.lab=4,xaxt="n",yaxt="n")#
+    title(paste("(",letters[j],")",sep=""),line=1,cex.main=4)#
+    axis(2,cex.axis=2,lwd=0,lwd.ticks=0,pos=-0.08)#
+    axis(2,label=FALSE,lwd=0,lwd.ticks=1)#
+    axis(1,cex.axis=2,lwd=0,lwd.ticks=1)#
+    mtext(par_name_expression[j], side=1, line=4.4, cex=4.5)#
+    for(i in 1:no_sim){#
+      lines(density(unlist(common.pars.stan.result[i][[1]][par_name[j]])[1001:2000]),col="grey",cex=0.6,lwd=0.8)#
+    }#
+    # -------- plot prior#
+    if(j==1){#
+      curve(1/(sqrt(2*pi)*x)*exp(-(log(x)^2/2)),0,upperLimit,add=TRUE,col="blue",lwd=4.5)#
+    }else if(j==2){#
+      x_plot <- seq(0,4,length.out = 1000)#
+      integrand_f <- function(x) 1/(sqrt(2*pi)*x)*exp(-(log(x)^2/2))#
+      y_plot <- sapply(x_plot,function(x) integrate(integrand_f, lower = x, upper = Inf)$value) #
+      lines(x_plot,y_plot,col="blue",lwd=4.5)#
+    }else if(j==3){#
+      curve(1/(sqrt(2*pi)*5)*exp(-x^2/2/5**2),0,upperLimit,add=TRUE,col="blue",lwd=4.5)#
+    }else if(j==4){#
+      curve(1/(sqrt(2*pi)*x)*exp(-(log(x)^2/2)),0,upperLimit,add=TRUE,col="blue",lwd=4.5)#
+    }else{#
+      curve(1/(sqrt(2*pi)*x)*exp(-((log(x)+1)^2/2)),0,upperLimit,add=TRUE,col="blue",lwd=4.5)#
+    }#
+    abline(v=object[[j]],col="red",lwd=5.5) #true value#
+    points(mean(common.pars.array[,j,1]),0,col="purple",cex=2.8,pch=16) # estimated mean#
+    spin_result <- SPIn(common.pars.array[,j,1])$spin#
+    segments(x0=spin_result[1],spin_result[2],y0=0,col="purple",lwd=5.5) # estimated confidence interval#
+    segments(x0=spin_result[1],y0=0,y1=0.02,col="purple",lwd=5.5)#
+    segments(x0=spin_result[2],y0=0,y1=0.02,col="purple",lwd=5.5)#
+    invisible(dev.off())#
+  }#
+}
+no_events
+common.pars.array <- array(NA,dim=c(no_sim,length(mmhp_par_name),3))
+for(i in 1:no_sim){#
+    for(j in 1:length(mmhp_par_name)){#
+      common.pars.array[i,j,1] <- median(unlist(common.pars.stan.result[i][[1]][mmhp_par_name[j]])[1001:2000])#
+      common.pars.array[i,j,2] <- min(unlist(common.pars.stan.result[i][[1]][mmhp_par_name[j]])[1001:2000])#
+      common.pars.array[i,j,3] <- max(unlist(common.pars.stan.result[i][[1]][mmhp_par_name[j]])[1001:2000])#
+    }#
+  }
+ylim_ub <- c(3,2,2,1.2,4,5)#
+  xlim_ub <- c(2,4,5,5,3,3)#
+  par_name_expression <- c(expression(lambda[0]),expression(lambda[1]),expression(alpha),expression(beta),expression(q[1]),expression(q[0]))#
+#
+  for(j in c(1:length(mmhp_par_name))){#
+    if(j == length(mmhp_par_name)){#
+      png(paste(plot_path,"sim_par_",no_events,"_q0.png",sep=""), height=420, width=400)#
+    }else{#
+      png(paste(plot_path,"sim_par_",no_events,"_",mmhp_par_name[j],".png",sep=""), height=420, width=400)#
+    }#
+    par(mfrow=c(1,1),tcl=0.2,mgp=c(1.8,0.5,0),#
+        mar=c(5.25,4.5,3.5,0.5))#
+    lowerLimit <- min(common.pars.array[,j,2])#
+    upperLimit <- xlim_ub[j]#
+    plot(1,4,xlim=c(0,xlim_ub[j]),ylim=c(0,ylim_ub[j]), type="n",xlab="",ylab="Density",cex.lab=4,xaxt="n",yaxt="n")#
+    title(paste("(",letters[j],")",sep=""),line=1,cex.main=4)#
+    axis(2,cex.axis=2,lwd=0,lwd.ticks=0,pos=-0.08)#
+    axis(2,label=FALSE,lwd=0,lwd.ticks=1)#
+    axis(1,cex.axis=2,lwd=0,lwd.ticks=1)#
+    mtext(par_name_expression[j], side=1, line=4.4, cex=4.5)#
+    for(i in 1:no_sim){#
+      lines(density(unlist(common.pars.stan.result[i][[1]][par_name[j]])[1001:2000]),col="grey",cex=0.6,lwd=0.8)#
+    }#
+    # -------- plot prior#
+    if(j==1){#
+      curve(1/(sqrt(2*pi)*x)*exp(-(log(x)^2/2)),0,upperLimit,add=TRUE,col="blue",lwd=4.5)#
+    }else if(j==2){#
+      x_plot <- seq(0,4,length.out = 1000)#
+      integrand_f <- function(x) 1/(sqrt(2*pi)*x)*exp(-(log(x)^2/2))#
+      y_plot <- sapply(x_plot,function(x) integrate(integrand_f, lower = x, upper = Inf)$value) #
+      lines(x_plot,y_plot,col="blue",lwd=4.5)#
+    }else if(j==3){#
+      curve(1/(sqrt(2*pi)*5)*exp(-x^2/2/5**2),0,upperLimit,add=TRUE,col="blue",lwd=4.5)#
+    }else if(j==4){#
+      curve(1/(sqrt(2*pi)*x)*exp(-(log(x)^2/2)),0,upperLimit,add=TRUE,col="blue",lwd=4.5)#
+    }else{#
+      curve(1/(sqrt(2*pi)*x)*exp(-((log(x)+1)^2/2)),0,upperLimit,add=TRUE,col="blue",lwd=4.5)#
+    }#
+    abline(v=object[[j]],col="red",lwd=5.5) #true value#
+    points(mean(common.pars.array[,j,1]),0,col="purple",cex=2.8,pch=16) # estimated mean#
+    spin_result <- SPIn(common.pars.array[,j,1])$spin#
+    segments(x0=spin_result[1],spin_result[2],y0=0,col="purple",lwd=5.5) # estimated confidence interval#
+    segments(x0=spin_result[1],y0=0,y1=0.02,col="purple",lwd=5.5)#
+    segments(x0=spin_result[2],y0=0,y1=0.02,col="purple",lwd=5.5)#
+    invisible(dev.off())#
+  }
+ylim_ub <- c(3,2,2,1.2,4,5)#
+  xlim_ub <- c(2,4,5,5,3,3)#
+  par_name_expression <- c(expression(lambda[0]),expression(lambda[1]),expression(alpha),expression(beta),expression(q[1]),expression(q[0]))#
+#
+  for(j in c(1:length(mmhp_par_name))){#
+    if(j == length(mmhp_par_name)){#
+      png(paste(plot_path,"sim_par_",no_events,"_q0.png",sep=""), height=420, width=400)#
+    }else{#
+      png(paste(plot_path,"sim_par_",no_events,"_",mmhp_par_name[j],".png",sep=""), height=420, width=400)#
+    }#
+    par(mfrow=c(1,1),tcl=0.2,mgp=c(1.8,0.5,0),#
+        mar=c(5.25,4.5,3.5,0.5))#
+    lowerLimit <- min(common.pars.array[,j,2])#
+    upperLimit <- xlim_ub[j]#
+    plot(1,4,xlim=c(0,xlim_ub[j]),ylim=c(0,ylim_ub[j]), type="n",xlab="",ylab="Density",cex.lab=4,xaxt="n",yaxt="n")#
+    title(paste("(",letters[j],")",sep=""),line=1,cex.main=4)#
+    axis(2,cex.axis=2,lwd=0,lwd.ticks=0,pos=-0.08)#
+    axis(2,label=FALSE,lwd=0,lwd.ticks=1)#
+    axis(1,cex.axis=2,lwd=0,lwd.ticks=1)#
+    mtext(par_name_expression[j], side=1, line=4.4, cex=4.5)#
+    for(i in 1:no_sim){#
+      lines(density(unlist(common.pars.stan.result[i][[1]][mmhp_par_name[j]])[1001:2000]),col="grey",cex=0.6,lwd=0.8)#
+    }#
+    # -------- plot prior#
+    if(j==1){#
+      curve(1/(sqrt(2*pi)*x)*exp(-(log(x)^2/2)),0,upperLimit,add=TRUE,col="blue",lwd=4.5)#
+    }else if(j==2){#
+      x_plot <- seq(0,4,length.out = 1000)#
+      integrand_f <- function(x) 1/(sqrt(2*pi)*x)*exp(-(log(x)^2/2))#
+      y_plot <- sapply(x_plot,function(x) integrate(integrand_f, lower = x, upper = Inf)$value) #
+      lines(x_plot,y_plot,col="blue",lwd=4.5)#
+    }else if(j==3){#
+      curve(1/(sqrt(2*pi)*5)*exp(-x^2/2/5**2),0,upperLimit,add=TRUE,col="blue",lwd=4.5)#
+    }else if(j==4){#
+      curve(1/(sqrt(2*pi)*x)*exp(-(log(x)^2/2)),0,upperLimit,add=TRUE,col="blue",lwd=4.5)#
+    }else{#
+      curve(1/(sqrt(2*pi)*x)*exp(-((log(x)+1)^2/2)),0,upperLimit,add=TRUE,col="blue",lwd=4.5)#
+    }#
+    abline(v=object[[j]],col="red",lwd=5.5) #true value#
+    points(mean(common.pars.array[,j,1]),0,col="purple",cex=2.8,pch=16) # estimated mean#
+    spin_result <- SPIn(common.pars.array[,j,1])$spin#
+    segments(x0=spin_result[1],spin_result[2],y0=0,col="purple",lwd=5.5) # estimated confidence interval#
+    segments(x0=spin_result[1],y0=0,y1=0.02,col="purple",lwd=5.5)#
+    segments(x0=spin_result[2],y0=0,y1=0.02,col="purple",lwd=5.5)#
+    invisible(dev.off())#
+  }
+object <-list(lambda0=0.9, lambda1=1, alpha=0.8, beta=1.2, q1=0.2, q2=0.4, delta=c(2/3,1/3))
+load(paste(old_data_path,"fixed_state_stan_result_500.Rdata",sep=""))
+object <-list(lambda0=0.9, lambda1=1, alpha=0.8, beta=1.2, q1=0.2, q2=0.4, delta=c(2/3,1/3))
+test.mmhp.fix
+source('../lib/mmhp.R')
+horizon_time_vec <- c(7.5,10,13)#
+#
+for(l in c(1:3)){#
+  no_events <- no_vec_events[l]#
+  horizon_time <- horizon_time_vec[l]#
+  horizon_x <- max(which(test.mmhp.fix$x<=horizon_time))+1#
+  horizon_tau <- max(which(test.mmhp.fix$tau<=horizon_time))#
+  new.test.mmhp.fix <- list(x=test.mmhp.fix$x[1:horizon_x],#
+                            z=test.mmhp.fix$z[1:horizon_x],#
+                            tau=test.mmhp.fix$tau[1:horizon_tau],#
+                            zt=test.mmhp.fix$zt[1:horizon_tau])#
+  new.fixed.state.processes <- rep(list(),no_sim)#
+  fixed.state.stan.result <- rep(list(),no_sim)#
+  fixed.state.stan.time <- rep(NA,no_sim)#
+#
+  for(i in 1:no_sim){#
+    horizon_tau <- max(which(fixed.state.processes[i][[1]]$tau<=horizon_time))#
+    if(horizon_tau<20){#
+      new.fixed.state.processes[i][[1]] <- simulate.mmhp.given.state(object, states=list(x=new.test.mmhp.fix$x,#
+                                                                                         z=new.test.mmhp.fix$z),#
+                                                                     ending=tail(new.test.mmhp.fix$tau,1),max.nsim=300)#
+    }else{#
+      new.fixed.state.processes[i][[1]] <- list(tau=fixed.state.processes[i][[1]]$tau[1:horizon_tau],#
+                                         zt=fixed.state.processes[i][[1]]$zt[1:horizon_tau])#
+    }#
+    current_N <- length(new.fixed.state.processes[i][[1]]$tau)#
+    current_interevent <- new.fixed.state.processes[i][[1]]$tau[-1]-new.fixed.state.processes[i][[1]]$tau[-current_N]#
+    start_time <- Sys.time()#
+    fit_mmhp <- stan("../lib/sim_mmhp.stan", #
+                     data=list(N=current_N-1, interevent=current_interevent,  #
+                               event=cumsum(current_interevent), delta_1=0.5),#
+                     refresh = -1, iter=1000, chains=4, control=list(adapt_delta=0.95))#
+    end_time <- Sys.time()#
+    fixed.state.stan.time[i] <- end_time-start_time#
+    fixed.state.stan.result[i][[1]] <- extract(fit_mmhp)#
+  }#
+  fixed.state.processes <- new.fixed.state.processes#
+  test.mmhp.fix <- new.test.mmhp.fix#
+  save(fixed.state.processes,fixed.state.stan.result,#
+       fixed.state.stan.time,test.mmhp.fix,object,#
+       file=paste(data_path,"fixed_state_stan_result_",no_events,".Rdata",sep=""))#
+}
+i
+horizon_time_vec
+test.mmhp.fix
+load(paste(data_path,"fixed_state_stan_result_500.Rdata",sep=""))
+test.mmhp.fix
+horizon_time <- horizon_time_vec[l]#
+horizon_x <- max(which(test.mmhp.fix$x<=horizon_time))+1#
+horizon_tau <- max(which(test.mmhp.fix$tau<=horizon_time))#
+new.test.mmhp.fix <- list(x=test.mmhp.fix$x[1:horizon_x],#
+                          z=test.mmhp.fix$z[1:horizon_x],#
+                          tau=test.mmhp.fix$tau[1:horizon_tau],#
+                          zt=test.mmhp.fix$zt[1:horizon_tau])#
+#
+new.fixed.state.processes <- rep(list(),no_sim)#
+fixed.state.stan.result <- rep(list(),no_sim)#
+fixed.state.stan.time <- rep(NA,no_sim)#
+#
+for(i in 1:no_sim){#
+  horizon_tau <- max(which(fixed.state.processes[i][[1]]$tau<=horizon_time))#
+  if(horizon_tau<20){#
+    new.fixed.state.processes[i][[1]] <- simulate.mmhp.given.state(object, states=list(x=new.test.mmhp.fix$x,#
+                                                                                       z=new.test.mmhp.fix$z),#
+                                                                   ending=tail(new.test.mmhp.fix$tau,1),max.nsim=300)#
+  }else{#
+    new.fixed.state.processes[i][[1]] <- list(tau=fixed.state.processes[i][[1]]$tau[1:horizon_tau],#
+                                              zt=fixed.state.processes[i][[1]]$zt[1:horizon_tau])#
+  }#
+  # current_N <- length(new.fixed.state.processes[i][[1]]$tau)#
+  # current_interevent <- new.fixed.state.processes[i][[1]]$tau[-1]-new.fixed.state.processes[i][[1]]$tau[-current_N]#
+  # start_time <- Sys.time()#
+  # fit_mmhp <- stan("../lib/sim_mmhp.stan", #
+  #                  data=list(N=current_N-1, interevent=current_interevent,  #
+  #                            event=cumsum(current_interevent), delta_1=0.5),#
+  #                  refresh = -1, iter=1000, chains=4, control=list(adapt_delta=0.95))#
+  # end_time <- Sys.time()#
+  # fixed.state.stan.time[i] <- end_time-start_time#
+  # fixed.state.stan.result[i][[1]] <- extract(fit_mmhp)#
+}
+new.fixed.state.processes[1]
+new.fixed.state.processes[50]
+new.test.mmhp.fix
+l <- 1#
+#
+horizon_time <- horizon_time_vec[l]#
+horizon_x <- max(which(test.mmhp.fix$x<=horizon_time))+1#
+horizon_tau <- max(which(test.mmhp.fix$tau<=horizon_time))#
+new.test.mmhp.fix <- list(x=test.mmhp.fix$x[1:horizon_x],#
+                          z=test.mmhp.fix$z[1:horizon_x],#
+                          tau=test.mmhp.fix$tau[1:horizon_tau],#
+                          zt=test.mmhp.fix$zt[1:horizon_tau])#
+#
+new.fixed.state.processes <- rep(list(),no_sim)#
+fixed.state.stan.result <- rep(list(),no_sim)#
+fixed.state.stan.time <- rep(NA,no_sim)
+for(i in 1:no_sim){#
+  horizon_tau <- max(which(fixed.state.processes[i][[1]]$tau<=horizon_time))#
+  if(horizon_tau<20){#
+    new.fixed.state.processes[i][[1]] <- simulate.mmhp.given.state(object, states=list(x=new.test.mmhp.fix$x,#
+                                                                                       z=new.test.mmhp.fix$z),#
+                                                                   ending=tail(new.test.mmhp.fix$tau,1),max.nsim=300)#
+  }else{#
+    new.fixed.state.processes[i][[1]] <- list(tau=fixed.state.processes[i][[1]]$tau[1:horizon_tau],#
+                                              zt=fixed.state.processes[i][[1]]$zt[1:horizon_tau])#
+  }#
+  # current_N <- length(new.fixed.state.processes[i][[1]]$tau)#
+  # current_interevent <- new.fixed.state.processes[i][[1]]$tau[-1]-new.fixed.state.processes[i][[1]]$tau[-current_N]#
+  # start_time <- Sys.time()#
+  # fit_mmhp <- stan("../lib/sim_mmhp.stan", #
+  #                  data=list(N=current_N-1, interevent=current_interevent,  #
+  #                            event=cumsum(current_interevent), delta_1=0.5),#
+  #                  refresh = -1, iter=1000, chains=4, control=list(adapt_delta=0.95))#
+  # end_time <- Sys.time()#
+  # fixed.state.stan.time[i] <- end_time-start_time#
+  # fixed.state.stan.result[i][[1]] <- extract(fit_mmhp)#
+}
+new.fixed.state.processes[50]
+new.test.mmhp.fix
+for(i in 1:no_sim){#
+  horizon_tau <- max(which(fixed.state.processes[i][[1]]$tau<=horizon_time))#
+  # if(horizon_tau<20){#
+  #   new.fixed.state.processes[i][[1]] <- simulate.mmhp.given.state(object, states=list(x=new.test.mmhp.fix$x,#
+  #                                                                                      z=new.test.mmhp.fix$z),#
+  #                                                                  ending=tail(new.test.mmhp.fix$tau,1),max.nsim=300)#
+  # }else{#
+  #   new.fixed.state.processes[i][[1]] <- list(tau=fixed.state.processes[i][[1]]$tau[1:horizon_tau],#
+  #                                             zt=fixed.state.processes[i][[1]]$zt[1:horizon_tau])#
+  # }#
+  current_N <- length(new.fixed.state.processes[i][[1]]$tau)#
+  current_interevent <- new.fixed.state.processes[i][[1]]$tau[-1]-new.fixed.state.processes[i][[1]]$tau[-current_N]#
+  start_time <- Sys.time()#
+  fit_mmhp <- stan("../lib/sim_mmhp.stan",#
+                   data=list(N=current_N-1, interevent=current_interevent,#
+                             event=cumsum(current_interevent), delta_1=0.5),#
+                   refresh = -1, iter=1000, chains=4, control=list(adapt_delta=0.95))#
+  end_time <- Sys.time()#
+  fixed.state.stan.time[i] <- end_time-start_time#
+  fixed.state.stan.result[i][[1]] <- extract(fit_mmhp)#
+}
+load(paste(data_path,"fixed_state_stan_result_500.Rdata",sep=""))#
+long.test.mmhp.fix <- test.mmhp.fix#
+l <- 2
+long.test.mmhp.fix
+no_events <- no_vec_events[l]#
+horizon_time <- horizon_time_vec[l]#
+horizon_x <- max(which(long.test.mmhp.fix$x<=horizon_time))+1#
+horizon_tau <- max(which(long.test.mmhp.fix$tau<=horizon_time))#
+new.test.mmhp.fix <- list(x=long.test.mmhp.fix$x[1:horizon_x],#
+                          z=long.test.mmhp.fix$z[1:horizon_x],#
+                          tau=long.test.mmhp.fix$tau[1:horizon_tau],#
+                          zt=long.test.mmhp.fix$zt[1:horizon_tau])
+new.test.mmhp.fix
+new.fixed.state.processes <- rep(list(),no_sim)#
+fixed.state.stan.result <- rep(list(),no_sim)#
+fixed.state.stan.time <- rep(NA,no_sim)#
+for(i in 1:no_sim){#
+  horizon_tau <- max(which(fixed.state.processes[i][[1]]$tau<=horizon_time))#
+  if(horizon_tau<20){#
+    new.fixed.state.processes[i][[1]] <- simulate.mmhp.given.state(object, states=list(x=new.test.mmhp.fix$x,#
+                                                                                       z=new.test.mmhp.fix$z),#
+                                                                   ending=tail(new.test.mmhp.fix$tau,1),max.nsim=300)#
+  }else{#
+    new.fixed.state.processes[i][[1]] <- list(tau=fixed.state.processes[i][[1]]$tau[1:horizon_tau],#
+                                              zt=fixed.state.processes[i][[1]]$zt[1:horizon_tau])#
+  }#
+  # current_N <- length(new.fixed.state.processes[i][[1]]$tau)#
+  # current_interevent <- new.fixed.state.processes[i][[1]]$tau[-1]-new.fixed.state.processes[i][[1]]$tau[-current_N]#
+  # start_time <- Sys.time()#
+  # fit_mmhp <- stan("../lib/sim_mmhp.stan", #
+  #                  data=list(N=current_N-1, interevent=current_interevent,  #
+  #                            event=cumsum(current_interevent), delta_1=0.5),#
+  #                  refresh = -1, iter=1000, chains=4, control=list(adapt_delta=0.95))#
+  # end_time <- Sys.time()#
+  # fixed.state.stan.time[i] <- end_time-start_time#
+  # fixed.state.stan.result[i][[1]] <- extract(fit_mmhp)#
+}
+new.fixed.state.processes[i][[1]]
+new.fixed.state.processes[4][[1]]
+new.fixed.state.processes[6][[1]]
+for(i in 1:no_sim){#
+  horizon_tau <- max(which(fixed.state.processes[i][[1]]$tau<=horizon_time))#
+  # if(horizon_tau<20){#
+  #   new.fixed.state.processes[i][[1]] <- simulate.mmhp.given.state(object, states=list(x=new.test.mmhp.fix$x,#
+  #                                                                                      z=new.test.mmhp.fix$z),#
+  #                                                                  ending=tail(new.test.mmhp.fix$tau,1),max.nsim=300)#
+  # }else{#
+  #   new.fixed.state.processes[i][[1]] <- list(tau=fixed.state.processes[i][[1]]$tau[1:horizon_tau],#
+  #                                             zt=fixed.state.processes[i][[1]]$zt[1:horizon_tau])#
+  # }#
+  current_N <- length(new.fixed.state.processes[i][[1]]$tau)#
+  current_interevent <- new.fixed.state.processes[i][[1]]$tau[-1]-new.fixed.state.processes[i][[1]]$tau[-current_N]#
+  start_time <- Sys.time()#
+  fit_mmhp <- stan("../lib/sim_mmhp.stan", #
+                   data=list(N=current_N-1, interevent=current_interevent,  #
+                             event=cumsum(current_interevent), delta_1=0.5),#
+                   refresh = -1, iter=1000, chains=4, control=list(adapt_delta=0.95))#
+  end_time <- Sys.time()#
+  fixed.state.stan.time[i] <- end_time-start_time#
+  fixed.state.stan.result[i][[1]] <- extract(fit_mmhp)#
+}
+fixed.state.processes <- new.fixed.state.processes#
+test.mmhp.fix <- new.test.mmhp.fix#
+save(fixed.state.processes,fixed.state.stan.result,#
+     fixed.state.stan.time,test.mmhp.fix,object,#
+     file=paste(data_path,"fixed_state_stan_result_",no_events,".Rdata",sep=""))
+l <- 3#
+#
+no_events <- no_vec_events[l]#
+horizon_time <- horizon_time_vec[l]#
+horizon_x <- max(which(long.test.mmhp.fix$x<=horizon_time))+1#
+horizon_tau <- max(which(long.test.mmhp.fix$tau<=horizon_time))#
+new.test.mmhp.fix <- list(x=long.test.mmhp.fix$x[1:horizon_x],#
+                          z=long.test.mmhp.fix$z[1:horizon_x],#
+                          tau=long.test.mmhp.fix$tau[1:horizon_tau],#
+                          zt=long.test.mmhp.fix$zt[1:horizon_tau])#
+#
+new.fixed.state.processes <- rep(list(),no_sim)#
+fixed.state.stan.result <- rep(list(),no_sim)#
+fixed.state.stan.time <- rep(NA,no_sim)#
+for(i in 1:no_sim){#
+  horizon_tau <- max(which(fixed.state.processes[i][[1]]$tau<=horizon_time))#
+  if(horizon_tau<20){#
+    new.fixed.state.processes[i][[1]] <- simulate.mmhp.given.state(object, states=list(x=new.test.mmhp.fix$x,#
+                                                                                       z=new.test.mmhp.fix$z),#
+                                                                   ending=tail(new.test.mmhp.fix$tau,1),max.nsim=300)#
+  }else{#
+    new.fixed.state.processes[i][[1]] <- list(tau=fixed.state.processes[i][[1]]$tau[1:horizon_tau],#
+                                              zt=fixed.state.processes[i][[1]]$zt[1:horizon_tau])#
+  }#
+  # current_N <- length(new.fixed.state.processes[i][[1]]$tau)#
+  # current_interevent <- new.fixed.state.processes[i][[1]]$tau[-1]-new.fixed.state.processes[i][[1]]$tau[-current_N]#
+  # start_time <- Sys.time()#
+  # fit_mmhp <- stan("../lib/sim_mmhp.stan", #
+  #                  data=list(N=current_N-1, interevent=current_interevent,  #
+  #                            event=cumsum(current_interevent), delta_1=0.5),#
+  #                  refresh = -1, iter=1000, chains=4, control=list(adapt_delta=0.95))#
+  # end_time <- Sys.time()#
+  # fixed.state.stan.time[i] <- end_time-start_time#
+  # fixed.state.stan.result[i][[1]] <- extract(fit_mmhp)#
+}
+new.fixed.state.processes[[1]]
+new.test.mmhp.fix
+horizon_time_vec
+long.test.mmhp.fix
+l <- 3#
+#
+no_events <- no_vec_events[l]#
+horizon_time <- horizon_time_vec[l]#
+horizon_x <- max(which(long.test.mmhp.fix$x<=horizon_time))+1#
+horizon_tau <- max(which(long.test.mmhp.fix$tau<=horizon_time))#
+new.test.mmhp.fix <- list(x=long.test.mmhp.fix$x[1:horizon_x],#
+                          z=long.test.mmhp.fix$z[1:horizon_x],#
+                          tau=long.test.mmhp.fix$tau[1:horizon_tau],#
+                          zt=long.test.mmhp.fix$zt[1:horizon_tau])#
+#
+new.fixed.state.processes <- rep(list(),no_sim)#
+fixed.state.stan.result <- rep(list(),no_sim)#
+fixed.state.stan.time <- rep(NA,no_sim)#
+for(i in 1:no_sim){#
+  horizon_tau <- max(which(fixed.state.processes[i][[1]]$tau<=horizon_time))#
+  if(horizon_tau<20){#
+    new.fixed.state.processes[i][[1]] <- simulate.mmhp.given.state(object, states=list(x=new.test.mmhp.fix$x,#
+                                                                                       z=new.test.mmhp.fix$z),#
+                                                                   ending=tail(new.test.mmhp.fix$tau,1),max.nsim=300)#
+  }else{#
+    new.fixed.state.processes[i][[1]] <- list(tau=fixed.state.processes[i][[1]]$tau[1:horizon_tau],#
+                                              zt=fixed.state.processes[i][[1]]$zt[1:horizon_tau])#
+  }#
+  # current_N <- length(new.fixed.state.processes[i][[1]]$tau)#
+  # current_interevent <- new.fixed.state.processes[i][[1]]$tau[-1]-new.fixed.state.processes[i][[1]]$tau[-current_N]#
+  # start_time <- Sys.time()#
+  # fit_mmhp <- stan("../lib/sim_mmhp.stan", #
+  #                  data=list(N=current_N-1, interevent=current_interevent,  #
+  #                            event=cumsum(current_interevent), delta_1=0.5),#
+  #                  refresh = -1, iter=1000, chains=4, control=list(adapt_delta=0.95))#
+  # end_time <- Sys.time()#
+  # fixed.state.stan.time[i] <- end_time-start_time#
+  # fixed.state.stan.result[i][[1]] <- extract(fit_mmhp)#
+}
+new.test.mmhp.fix new.fixed.state.processes[]
+new.fixed.state.processes[1]
+new.fixed.state.processes[2]
+new.fixed.state.processes[4]
+new.fixed.state.processes[50]
+horizon_time_vec
+for(i in 1:no_sim){#
+  horizon_tau <- max(which(fixed.state.processes[i][[1]]$tau<=horizon_time))#
+  # if(horizon_tau<20){#
+  #   new.fixed.state.processes[i][[1]] <- simulate.mmhp.given.state(object, states=list(x=new.test.mmhp.fix$x,#
+  #                                                                                      z=new.test.mmhp.fix$z),#
+  #                                                                  ending=tail(new.test.mmhp.fix$tau,1),max.nsim=300)#
+  # }else{#
+  #   new.fixed.state.processes[i][[1]] <- list(tau=fixed.state.processes[i][[1]]$tau[1:horizon_tau],#
+  #                                             zt=fixed.state.processes[i][[1]]$zt[1:horizon_tau])#
+  # }#
+  current_N <- length(new.fixed.state.processes[i][[1]]$tau)#
+  current_interevent <- new.fixed.state.processes[i][[1]]$tau[-1]-new.fixed.state.processes[i][[1]]$tau[-current_N]#
+  start_time <- Sys.time()#
+  fit_mmhp <- stan("../lib/sim_mmhp.stan", #
+                   data=list(N=current_N-1, interevent=current_interevent,  #
+                             event=cumsum(current_interevent), delta_1=0.5),#
+                   refresh = -1, iter=1000, chains=4, control=list(adapt_delta=0.95))#
+  end_time <- Sys.time()#
+  fixed.state.stan.time[i] <- end_time-start_time#
+  fixed.state.stan.result[i][[1]] <- extract(fit_mmhp)#
+}
+fixed.state.processes <- new.fixed.state.processes#
+test.mmhp.fix <- new.test.mmhp.fix#
+save(fixed.state.processes,fixed.state.stan.result,#
+     fixed.state.stan.time,test.mmhp.fix,object,#
+     file=paste(data_path,"fixed_state_stan_result_",no_events,".Rdata",sep=""))
+library(HiddenMarkov)
+Q <- matrix(c(-2, 2,#
+              1, -1),#
+            byrow=TRUE, nrow=2)/10#
+x <- mmpp(NULL, Q, delta=c(0, 1), lambda=c(5, 1))#
+x <- simulate(x, nsim=5000, seed=5)#
+y <- BaumWelch(x)#
+print(summary(y))
+x
+names(x)
+infer_x <- x#
+infer_x$Q <- matrix(c(-1, 1, 2, -2), byrow=TRUE, nrow=2)#
+infer_x$delta <- c(1,0)#
+infer_x$lambda <- c(1,1)#
+y <- BaumWelch(infer_x)#
+print(summary(y))
+data_path
+old_data_path
+x$tau
+names(x)
+nonstat$nonstat
+x$nonstat
+y$nonstat
+for(l in c(1:1)){#length(no_vec_events))){#
+  no_events <- no_vec_events[l]#
+  load(paste(old_data_path,"fixed_state_stan_result_",no_events,".Rdata",sep=""))#
+  for(i in c(1:1)){#50)){#
+    current_N <- length(fixed.state.processes[i][[1]]$tau)#
+    mmpp_input <- list(tau=fixed.state.processes[i][[1]]$tau,#
+                       Q=matrix(c(-1, 1, 2, -2), byrow=TRUE, nrow=2),#
+                       delta=c(1,0),#
+                       lambda=c(2,1),#
+                       nonstat=TRUE)#
+    fit_mmpp <- BaumWelch(mmpp_input)#
+    fixed.state.mmpp.result[i][[1]] <- extract(fit_mmpp)#
+  }#
+  # save(fixed.state.processes,fixed.state.mmpp.result,#
+  #      test.mmhp.fix,object,#
+  #      file=paste(data_path,"mmpp_fixed_state_stan_result_",no_events,".Rdata",sep=""))#
+}
+for(l in c(1:1)){#length(no_vec_events))){#
+  no_events <- no_vec_events[l]#
+  load(paste(old_data_path,"fixed_state_stan_result_",no_events,".Rdata",sep=""))#
+  fixed.state.mmpp.result <- rep(list(),no_sim)#
+  for(i in c(1:1)){#no_sim)){#
+    current_N <- length(fixed.state.processes[i][[1]]$tau)#
+    mmpp_input <- mmpp(tau=fixed.state.processes[i][[1]]$tau,#
+                       Q=matrix(c(-1, 1, 2, -2), byrow=TRUE, nrow=2),#
+                       delta=c(1,0),#
+                       lambda=c(2,1),#
+                       nonstat=TRUE)#
+    fixed.state.mmpp.result[i][[1]] <- BaumWelch(mmpp_input)#
+  }#
+  # save(fixed.state.processes,fixed.state.mmpp.result,#
+  #      test.mmhp.fix,object,#
+  #      file=paste(data_path,"mmpp_fixed_state_stan_result_",no_events,".Rdata",sep=""))#
+}
+fixed.state.mmpp.result[i][[1]]
+library(MMHP)
+test.mmhp.fix
+no_events <- no_vec_events[l]#
+  termination_time <- tail(test.mmhp.fix$x,1)#
+  time_segment <- 0.05#
+  time_vec <- seq(0,termination_time,time_segment)#
+  state_estimation_matrix <- matrix(0,nrow=no_sim,ncol=length(time_vec))#
+  event_state_estimation <- rep(list(),no_sim)
+event_time <- fixed.state.processes[i][[1]]$tau
+tryCatch(estSInt(tims = event_time,#
+                                     ti = event_time,#
+                                     lamb0 = fixed.state.mmpp.result[i][[1]]$lamb,#
+                                     nu0 = 0,#
+                                     eta0 =1,#
+                                     Q0 =fixed.state.mmpp.result[i][[1]]$Q,#
+                                     pai0 = fixed.state.mmpp.result[i][[1]]$delta, fortran = TRUE),#
+                             warning = function(w) {0},#
+                             error = function(e) {0})
+estSInt(tims = event_time,#
+                                     ti = event_time,#
+                                     lamb0 = fixed.state.mmpp.result[i][[1]]$lamb,#
+                                     nu0 = 0,#
+                                     eta0 =1,#
+                                     Q0 =fixed.state.mmpp.result[i][[1]]$Q,#
+                                     pai0 = fixed.state.mmpp.result[i][[1]]$delta, fortran = TRUE)
+event_time
+estSInt(tims = 2,#
+                                     ti = event_time,#
+                                     lamb0 = fixed.state.mmpp.result[i][[1]]$lamb,#
+                                     nu0 = 0,#
+                                     eta0 =1,#
+                                     Q0 =fixed.state.mmpp.result[i][[1]]$Q,#
+                                     pai0 = fixed.state.mmpp.result[i][[1]]$delta, fortran = TRUE)
+estSInt(tims = c(2,4),#
+                                     ti = event_time,#
+                                     lamb0 = fixed.state.mmpp.result[i][[1]]$lamb,#
+                                     nu0 = 0,#
+                                     eta0 =1,#
+                                     Q0 =fixed.state.mmpp.result[i][[1]]$Q,#
+                                     pai0 = fixed.state.mmpp.result[i][[1]]$delta, fortran = TRUE)
+for(l in c(1:1)){#length(no_vec_events))){#
+  no_events <- no_vec_events[l]#
+  termination_time <- tail(test.mmhp.fix$x,1)#
+  time_segment <- 0.05#
+  time_vec <- seq(0,termination_time,time_segment)#
+  state_estimation_matrix <- matrix(0,nrow=no_sim,ncol=length(time_vec))#
+  event_state_estimation <- rep(list(),no_sim)#
+  for(i in c(1:1)){#no_sim)){#
+    event_time <- fixed.state.processes[i][[1]]$tau#
+    for(j in 1:length(time_vec)){#
+      if(time_vec[j]>tail(event_time,1)){#
+        next#
+      }else{#
+        est_result <- tryCatch(estSInt(tims = time_vec[j],#
+                                       ti = event_time,#
+                                       lamb0 = fixed.state.mmpp.result[i][[1]]$lamb,#
+                                       nu0 = 0,#
+                                       eta0 =1,#
+                                       Q0 =fixed.state.mmpp.result[i][[1]]$Q,#
+                                       pai0 = mmhpsd_par_result[i][[1]]$pai, fortran = TRUE),#
+                               warning = function(w) {0},#
+                               error = function(e) {0})#
+        state_estimation_matrix[i,j+1] <- ifelse(class(est_result)=="list",est_result$estStat[2],est_result)#
+      }#
+    }#
+    event_state_estimation[i][[1]] <- numeric(length(event_time))#
+    for(j in 1:length(event_time)){#
+      est_result <- tryCatch(estSInt(tims = event_time[j],#
+                                     ti = event_time,#
+                                     lamb0 = fixed.state.mmpp.result[i][[1]]$lamb,#
+                                     nu0 = 0,#
+                                     eta0 =1,#
+                                     Q0 =fixed.state.mmpp.result[i][[1]]$Q,#
+                                     pai0 = fixed.state.mmpp.result[i][[1]]$delta, fortran = TRUE),#
+                             warning = function(w) {0},#
+                             error = function(e) {0})#
+      event_state_estimation[i][[1]][j] <- ifelse(class(est_result)=="list",est_result$estStat[2],est_result)#
+    }#
+  }#
+  # save(fixed.state.processes,fixed.state.mmpp.result,#
+  #      test.mmhp.fix,object,#
+  #      file=paste(data_path,"mmpp_fixed_state_stan_result_",no_events,".Rdata",sep=""))#
+}
+event_state_estimation[1]
+state_estimation_matrix[1,]
+estSInt(tims = time_vec[j],#
+                                       ti = event_time,#
+                                       lamb0 = fixed.state.mmpp.result[i][[1]]$lamb,#
+                                       nu0 = 0,#
+                                       eta0 =1,#
+                                       Q0 =fixed.state.mmpp.result[i][[1]]$Q,#
+                                       pai0 = mmhpsd_par_result[i][[1]]$pai, fortran = TRUE)\
+estSInt(tims = time_vec[j],#
+                                       ti = event_time,#
+                                       lamb0 = fixed.state.mmpp.result[i][[1]]$lamb,#
+                                       nu0 = 0,#
+                                       eta0 =1,#
+                                       Q0 =fixed.state.mmpp.result[i][[1]]$Q,#
+                                       pai0 = mmhpsd_par_result[i][[1]]$pai, fortran = TRUE)
+for(l in c(1:1)){#length(no_vec_events))){#
+  no_events <- no_vec_events[l]#
+  termination_time <- tail(test.mmhp.fix$x,1)#
+  time_segment <- 0.05#
+  time_vec <- seq(0,termination_time,time_segment)#
+  state_estimation_matrix <- matrix(0,nrow=no_sim,ncol=length(time_vec))#
+  event_state_estimation <- rep(list(),no_sim)#
+  for(i in c(1:1)){#no_sim)){#
+    event_time <- fixed.state.processes[i][[1]]$tau#
+    for(j in 1:length(time_vec)){#
+      if(time_vec[j]>tail(event_time,1)){#
+        next#
+      }else{#
+        est_result <- tryCatch(estSInt(tims = time_vec[j],#
+                                       ti = event_time,#
+                                       lamb0 = fixed.state.mmpp.result[i][[1]]$lamb,#
+                                       nu0 = 0,#
+                                       eta0 =1,#
+                                       Q0 =fixed.state.mmpp.result[i][[1]]$Q,#
+                                       pai0 = fixed.state.mmpp.result[i][[1]]$delta, fortran = TRUE),#
+                               warning = function(w) {0},#
+                               error = function(e) {0})#
+        state_estimation_matrix[i,j+1] <- ifelse(class(est_result)=="list",est_result$estStat[2],est_result)#
+      }#
+    }#
+    event_state_estimation[i][[1]] <- numeric(length(event_time))#
+    for(j in 1:length(event_time)){#
+      est_result <- tryCatch(estSInt(tims = event_time[j],#
+                                     ti = event_time,#
+                                     lamb0 = fixed.state.mmpp.result[i][[1]]$lamb,#
+                                     nu0 = 0,#
+                                     eta0 =1,#
+                                     Q0 =fixed.state.mmpp.result[i][[1]]$Q,#
+                                     pai0 = fixed.state.mmpp.result[i][[1]]$delta, fortran = TRUE),#
+                             warning = function(w) {0},#
+                             error = function(e) {0})#
+      event_state_estimation[i][[1]][j] <- ifelse(class(est_result)=="list",est_result$estStat[2],est_result)#
+    }#
+  }#
+  # save(fixed.state.processes,fixed.state.mmpp.result,#
+  #      test.mmhp.fix,object,#
+  #      file=paste(data_path,"mmpp_fixed_state_stan_result_",no_events,".Rdata",sep=""))#
+}
+state_estimation_matrix[1,]
+state_estimation_matrix[1,]>0.5
+for(l in c(1:1)){#length(no_vec_events))){#
+  no_events <- no_vec_events[l]#
+  load(paste(old_data_path,"fixed_state_stan_result_",no_events,".Rdata",sep=""))#
+  termination_time <- tail(test.mmhp.fix$x,1)#
+  time_segment <- 0.05#
+  time_vec <- seq(0,termination_time,time_segment)#
+  fixed.state.mmpp.result <- rep(list(),no_sim)#
+  state_estimation_matrix <- matrix(0,nrow=no_sim,ncol=length(time_vec))#
+  event_state_estimation <- rep(list(),no_sim)#
+  for(i in c(1:1)){#no_sim)){#
+    event_time <- fixed.state.processes[i][[1]]$tau#
+    current_N <- length(fixed.state.processes[i][[1]]$tau)#
+    ## estimate parameters#
+    mmpp_input <- mmpp(tau=fixed.state.processes[i][[1]]$tau,#
+                       Q=matrix(c(-1, 1, 2, -2), byrow=TRUE, nrow=2),#
+                       delta=c(1,0),#
+                       lambda=c(2,1),#
+                       nonstat=TRUE)#
+    fixed.state.mmpp.result[i][[1]] <- BaumWelch(mmpp_input)#
+    ## estimate states#
+    for(j in 1:length(time_vec)){#
+      if(time_vec[j]>tail(event_time,1)){#
+        next#
+      }else{#
+        est_result <- tryCatch(estSInt(tims = time_vec[j],#
+                                       ti = event_time,#
+                                       lamb0 = fixed.state.mmpp.result[i][[1]]$lamb,#
+                                       nu0 = 0,#
+                                       eta0 =1,#
+                                       Q0 =fixed.state.mmpp.result[i][[1]]$Q,#
+                                       pai0 = fixed.state.mmpp.result[i][[1]]$delta, fortran = TRUE),#
+                               warning = function(w) {0},#
+                               error = function(e) {0})#
+        state_estimation_matrix[i,j+1] <- ifelse(class(est_result)=="list",est_result$estStat[2],est_result)#
+      }#
+    }#
+    event_state_estimation[i][[1]] <- numeric(length(event_time))#
+    for(j in 1:length(event_time)){#
+      est_result <- tryCatch(estSInt(tims = event_time[j],#
+                                     ti = event_time,#
+                                     lamb0 = fixed.state.mmpp.result[i][[1]]$lamb,#
+                                     nu0 = 0,#
+                                     eta0 =1,#
+                                     Q0 =fixed.state.mmpp.result[i][[1]]$Q,#
+                                     pai0 = fixed.state.mmpp.result[i][[1]]$delta, fortran = TRUE),#
+                             warning = function(w) {0},#
+                             error = function(e) {0})#
+      event_state_estimation[i][[1]][j] <- ifelse(class(est_result)=="list",est_result$estStat[2],est_result)#
+    }#
+  }#
+  save(fixed.state.mmpp.result,event_state_estimation,state_estimation_matrix,time_vec,#
+       test.mmhp.fix,object,#
+       file=paste(data_path,"mmpp_fixed_state_stan_result_",no_events,".Rdata",sep=""))#
+}
+no_vec_events
+for(l in c(1:length(no_vec_events))){#
+  no_events <- no_vec_events[l]#
+  load(paste(old_data_path,"fixed_state_stan_result_",no_events,".Rdata",sep=""))#
+  termination_time <- tail(test.mmhp.fix$x,1)#
+  time_segment <- 0.05#
+  time_vec <- seq(0,termination_time,time_segment)#
+  fixed.state.mmpp.result <- rep(list(),no_sim)#
+  state_estimation_matrix <- matrix(0,nrow=no_sim,ncol=length(time_vec))#
+  event_state_estimation <- rep(list(),no_sim)#
+  for(i in c(1:no_sim)){#
+    event_time <- fixed.state.processes[i][[1]]$tau#
+    current_N <- length(fixed.state.processes[i][[1]]$tau)#
+    ## estimate parameters#
+    mmpp_input <- mmpp(tau=fixed.state.processes[i][[1]]$tau,#
+                       Q=matrix(c(-1, 1, 2, -2), byrow=TRUE, nrow=2),#
+                       delta=c(1,0),#
+                       lambda=c(2,1),#
+                       nonstat=TRUE)#
+    fixed.state.mmpp.result[i][[1]] <- BaumWelch(mmpp_input)#
+    ## estimate states#
+    for(j in 1:length(time_vec)){#
+      if(time_vec[j]>tail(event_time,1)){#
+        next#
+      }else{#
+        est_result <- tryCatch(estSInt(tims = time_vec[j],#
+                                       ti = event_time,#
+                                       lamb0 = fixed.state.mmpp.result[i][[1]]$lamb,#
+                                       nu0 = 0,#
+                                       eta0 =1,#
+                                       Q0 =fixed.state.mmpp.result[i][[1]]$Q,#
+                                       pai0 = fixed.state.mmpp.result[i][[1]]$delta, fortran = TRUE),#
+                               warning = function(w) {0},#
+                               error = function(e) {0})#
+        state_estimation_matrix[i,j+1] <- ifelse(class(est_result)=="list",est_result$estStat[2],est_result)#
+      }#
+    }#
+    event_state_estimation[i][[1]] <- numeric(length(event_time))#
+    for(j in 1:length(event_time)){#
+      est_result <- tryCatch(estSInt(tims = event_time[j],#
+                                     ti = event_time,#
+                                     lamb0 = fixed.state.mmpp.result[i][[1]]$lamb,#
+                                     nu0 = 0,#
+                                     eta0 =1,#
+                                     Q0 =fixed.state.mmpp.result[i][[1]]$Q,#
+                                     pai0 = fixed.state.mmpp.result[i][[1]]$delta, fortran = TRUE),#
+                             warning = function(w) {0},#
+                             error = function(e) {0})#
+      event_state_estimation[i][[1]][j] <- ifelse(class(est_result)=="list",est_result$estStat[2],est_result)#
+    }#
+  }#
+  save(fixed.state.mmpp.result,event_state_estimation,state_estimation_matrix,time_vec,#
+       test.mmhp.fix,object,#
+       file=paste(data_path,"mmpp_fixed_state_stan_result_",no_events,".Rdata",sep=""))#
+}

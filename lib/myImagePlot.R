@@ -70,20 +70,20 @@ myImagePlot <- function(x, ...){
   
   # Color Scale
   par(tcl=-0.2,mgp=c(1.8,0,0),mar = c(3,1.2,2,1.5))
-  if(!smallScale){
-    image(1, ColorLevels,
-          matrix(data=ColorLevels, ncol=length(ColorLevels),nrow=1),
-          col=ColorRamp,
-          xlab="",ylab="",
-          xaxt="n", yaxt="n")
-    axis(LEFT <- 2, at=seq(min,max,length.out = 5), labels=c(0,10,20,30,40),
-         cex.axis=1.5)
-  }else{
+  # if(!smallScale){
+  #   image(1, ColorLevels,
+  #         matrix(data=ColorLevels, ncol=length(ColorLevels),nrow=1),
+  #         col=ColorRamp,
+  #         xlab="",ylab="",
+  #         xaxt="n", yaxt="n")
+  #   axis(LEFT <- 2, at=seq(min,max,length.out = 5), labels=c(0,10,20,30,40),
+  #        cex.axis=1.5)
+  # }else{
     image(1, ColorLevels,
           matrix(data=ColorLevels, ncol=length(ColorLevels),nrow=1),
           col=ColorRamp[1:(length(ColorLevels))],
           xlab="",ylab="",
           xaxt="n",cex.axis=1.5)
-  }
+  #}
   layout(1)
 }
