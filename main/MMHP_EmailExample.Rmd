@@ -1,0 +1,247 @@
+---
+title: "MMHP Example - Email Data"
+output:
+  html_document:
+    df_print: paged
+---
+
+In this notebook we fit the proposed MMHP model to email interactions between two users. We analyse model fit and show this proposed model is well suited to modeling the sporadic and bursty nature of email interactions. We also fit the alternative models from the literature and show they are not able to describe the latent structure present in this data.
+
+```{r, echo=FALSE,message=FALSE}
+library(dplyr)
+library(stringr)
+library(ggplot2)
+library(tidyr)
+library(bayesplot)
+library(rstan)
+
+options(mc.cores = parallel::detectCores())
+run_stan = FALSE # whether to fit the stan model or not
+knitr::opts_chunk$set(fig.height = 6, fig.width = 8)
+
+```
+
+```{r}
+sample_times = readRDS("C:/Users/owenw/Documents/MMHP_Paper/data/time.RDS")
+time_vec = sample_times
+termination_time = 122
+diff_times = diff(c(0,time_vec,termination_time))
+```
+
+
+```{r, fig.width=10,fig.height=5}
+#par(mfrow=c(1,2))
+x_lim = 122
+current_event_time = time_vec
+plot(0.5,0,xlim=c(-0.2,x_lim),ylim=c(0.7,1.1), type="n",
+     xlab="",ylab="",xaxt="n",yaxt="n",cex.lab=.5,bty="n")
+#title("(a)",cex.main=.5,line = -0.75)
+title(xlab = "Time (Days)", cex.lab=0.5, line = 0.25)
+axis(2,at=c(1,2),labels=FALSE,cex.lab=.5,las=2,lwd=0,lwd.ticks=0)
+axis(1,at=seq(0,120,20),labels=FALSE,cex.lab=.2,las=1,lwd=.3,lwd.ticks=0.5)
+text(seq(0,120,20), y=0.65, labels=seq(0,120,20), cex=.5, srt=0, xpd=TRUE)
+
+segments(x0=0.1,x1=max(current_event_time),y0=1,col="lightgrey",lwd=1)
+
+# jitter points
+#y_jitt <- c(rep(1.5,length(current_event_time)))
+#y_jitt <- jitter(y_jitt,factor = 1.5)
+
+points(current_event_time,rep(1,length(current_event_time)),
+       pch=4,col="black",cex=0.75,lwd=1)
+for(i in 1:length(current_event_time)){
+  segments(x0=current_event_time[i],x1=current_event_time[i],
+           y0=0.5,y1=1,lty=3,lwd = 0.5)
+}
+#points(current_event_time,rep(1.5,length(current_event_time)),pch=4,col="black",cex=.5,lwd=1)
+#segments(x0=clean_data$observation_change,y0=0.5,y1=1.5,lty=1,col="red") # add observation period
+
+text(-10.1, y=1, labels="Event", cex=.4, srt=0, xpd=TRUE)
+text(-10.1, y=.95, labels="arrival", cex=.4, srt=0, xpd=TRUE)
+text(-10.1, y=0.9, labels="time", cex=.4, srt=0, xpd=TRUE)
+
+bw.used = 0.1
+density.event=density(time_vec, bw=bw.used)
+density.event$y=(density.event$y+0.5)/max(density.event$y+0.5) 
+lines(density.event, col=2)
+```
+
+
+```{r, fig.height=5,fig.width=5}
+interevent_time_vec = diff(time_vec)
+hist(interevent_time_vec,freq=F,breaks=30,
+     xlab="",ylab="Density",
+     xaxt="n",yaxt="n",
+     main="",cex.lab=0.75, bty="o")
+
+#title("(b)",line=-0.5,cex.main=2)
+axis(2,at=seq(0,1.2,0.2),labels=FALSE,cex.lab=1,las=2,lwd=1.2,lwd.ticks=1)
+axis(1,at=seq(0,8,2),labels=FALSE,cex.lab=1,las=2,lwd=1.2,lwd.ticks=1)
+text(-1, y=seq(0,1.2,0.2), labels=seq(0,1.2,0.2), cex=0.75, srt=0, xpd=TRUE)
+text(seq(0,8,2), y=-0.15, labels=seq(0,8,2), cex=0.75, srt=0, xpd=TRUE)
+text(2.5,-0.4,"Interevent time", cex=0.75, srt=0, xpd=TRUE)
+
+
+
+
+## Plot the density curve for interevent time
+# h <- hist(current_event_time[-1]-current_event_time[-length(current_event_time)], plot = FALSE, breaks=10)
+# xl <- seq(0, max(h$mids), (max(h$mids))/1000)
+# lines(xl, predict(loess(c(1,h$density) ~ c(-0.5,h$mids), span = 1.2), xl), lwd = 3, col="blue")
+
+## Plot the density curve for exponential
+exp_lambda_hat <- 1/(mean(interevent_time_vec))
+curve(dexp(x, rate=exp_lambda_hat),
+      xlim=c(0,8),
+      lwd=1.5, col="red", add = TRUE)
+
+legend(3.2,0.4,c("Homogeneous Poisson \ninterevent time density"),
+       lty=1,lwd=2,col=c("red"),y.intersp=0.9,x.intersp=0.4,seg.len=0.8,bty="n",cex=.55)
+```
+
+Sporadic and bursty.
+
+
+```{r, eval=run_stan}
+a = as.matrix(diff_times, nrow = 1, ncol = length(diff_times))
+
+fit_mmhp <- stan("C:/Users/owenw/Documents/MMHP_Analysis/SinglePair/New_mmhp_Continuous.stan",
+                 data = list(N_til = 1,
+                             max_Nm = length(time_vec),
+                             Nm = as.array(length(time_vec)),
+                             time_matrix= t(a),
+                             max_interevent = as.array(max(diff_times))),
+                 warmup = 1000,
+                 iter = 3500, chains = 4, thin = 5,control = list(adapt_delta=0.9))
+```
+
+We can evaluate the posterior using tools from the `bayesplot` package, such as looking at traceplots and
+histograms of the parameters.
+
+```{r, eval=run_stan}
+stan_hist(fit_mmhp,pars = c("alpha","beta","lambda0","lambda1"))
+
+# Traceplots
+traceplot(fit_mmhp,pars = "alpha")
+traceplot(fit_mmhp,pars = "lambda1")
+traceplot(fit_mmhp,pars = "beta")
+
+```
+
+We can then infer the latent state. For this pair.
+
+```{r, eval=run_stan}
+sim_mmhp <- rstan::extract(fit_mmhp)
+no_segments <- 10000
+
+param <- rep(list(),2000)
+delta_vec <- rep(0,2000)
+for(current_sim in 1:2000){
+  param[[current_sim]] <- list(lambda1=sim_mmhp$lambda1[current_sim],
+                               lambda0=sim_mmhp$lambda0[current_sim],
+                               alpha=sim_mmhp$alpha[current_sim], 
+                               beta=sim_mmhp$beta[current_sim],
+                               q1=sim_mmhp$q1[current_sim],
+                               q2=sim_mmhp$q2[current_sim])
+  delta_vec[current_sim] <- sim_mmhp$delta_1[current_sim]
+}
+
+
+time_segment <- seq(0,termination_time,length.out=no_segments)
+
+state_array_list <- matrix(0,nrow=length(time_vec),ncol=2000)
+initial_state_list <- matrix(0,nrow=1,ncol=2000)
+termination_state_list <- matrix(0,nrow=1,ncol=2000)
+interpolation_array_list <- matrix(0,nrow=no_segments,ncol=2000)
+
+
+# store the results of modified latent trajectory
+latent_inter_mod_out <- rep(list(),2000)
+
+source("C:/Users/owenw/Documents/MMHP_Paper/lib/inferLatentMmhp.R")
+source("C:/Users/owenw/Documents/MMHP_Paper/lib/Interpolate_Latent_Modified.R")
+
+for(current_sim in 1:2000){
+
+  viterbi_result <- myViterbiWithInitial(events = time_vec, param = param[[current_sim]],termination = termination_time,
+                                         initial.p = delta_vec[current_sim] )
+  state_array_list[,current_sim] <- viterbi_result$zt_v
+  initial_state_list[current_sim] <- viterbi_result$initial_state
+  termination_state_list[current_sim] <- viterbi_result$termination_state
+  
+  latent_inter <- interpolateLatentTrajectory(params = param[[current_sim]], events = time_vec,
+                                              zt = viterbi_result$zt_v,
+                                              initial.state = viterbi_result$initial_state,
+                                              termination.state = viterbi_result$termination_state,
+                                              termination.time = termination_time )
+
+  step_fun_est <- stepfun(latent_inter$x.hat,2-latent_inter$z.hat)
+  # this means that interpolation_array is 1 for active and 0 for inactive.
+  interpolation_array_list[,current_sim] <- step_fun_est(time_segment)
+}
+
+lambda0_mean <- mean(sim_mmhp$lambda0)
+lambda1_mean <- mean(sim_mmhp$lambda1) 
+alpha_mean <- mean(sim_mmhp$alpha)
+beta_mean <- mean(sim_mmhp$beta)
+q1_mean <- mean(sim_mmhp$q1)
+q2_mean <- mean(sim_mmhp$q2)
+
+
+ztv_mmhp_pair <- t(ifelse(apply(state_array_list,c(1),function(x) sum(x==1)) >1000,1,2))
+
+summary(as.vector(ztv_mmhp_pair))
+
+
+```
+
+We can then view the estimate latent state for the MMHP model.
+
+```{r, fig.height=8,fig.width=10, eval=run_stan}
+plot(0,0,xlim=c(-0.2,x_lim),ylim=c(-0.2,1.2), type="n",
+     xlab="Time (Days)",ylab="",xaxt="n",yaxt="n",cex.lab=0.5,bty="n")
+#title("(a) MMPP",line=1,cex.main=2)
+axis(2,at=c(1,2),labels=FALSE,cex.lab=0.5,las=2,lwd=0,lwd.ticks=0)
+axis(1,at=seq(0,x_lim,20),labels=FALSE,cex.lab=2,las=1,lwd=.3,lwd.ticks=0.5)
+text(-9.5, y=c(0,1), labels=paste(c("state","state"),c(0,1)," "), cex=0.4, srt=0, xpd=TRUE)
+text(-2, y=1.3, labels="Inferred latent state", cex=0.5, srt=0, xpd=TRUE)
+text(seq(0,x_lim,20), y=-0.55, labels=seq(0,x_lim,20), cex=0.75, srt=0, xpd=TRUE)
+segments(x0=0,x1=termination_time,y0=1,col="lightgrey",lwd=2)
+segments(x0=0,x1=termination_time,y0=0,col="lightgrey",lwd=2)
+segments(x0=0,x1=termination_time,y0=0.5,col="darkgrey",lwd=1,lty=2)
+#segments(x0=clean_data$observation_change,y0=0,y1=1,col='red')
+
+
+
+current_event_time <- time_vec
+
+
+#prob <- apply(state_array_list_mmpp,1,function(x) sum(x==1)/2000)
+points(current_event_time,2-ztv_mmhp_pair,pch=4,col="black",lwd=1,cex=0.75)
+
+## plot interpolated state
+time_segment <- seq(0,termination_time,length.out=no_segments)#+delta.x
+plot.mean <- apply(interpolation_array_list,1,mean)
+plot.sd <- apply(interpolation_array_list,1,sd)
+lines(plot.mean~time_segment,type="l",col="blue",lwd=2)
+polygon(c(time_segment,rev(time_segment)),
+        c(ifelse(plot.mean-plot.sd<0,rep(0,length(plot.mean)),plot.mean-plot.sd),
+          rev(ifelse(plot.mean+plot.sd>1,rep(1,length(plot.mean)),plot.mean+plot.sd))),
+        col=rgb(0,0,225,alpha=50,maxColorValue=255),border=FALSE)
+title("(a)",line=0.25,cex.main=0.5)
+
+# add kde
+bw.used = 0.1
+density.event=density(time_vec, bw=bw.used)
+density.event$y=(density.event$y)/max(density.event$y) 
+lines(density.event, col=2)
+
+```
+
+We can evaluate how well this model fits by looking at the distribution of the rescaled inter-arrival 
+times.
+
+
+We can also fit the other methods described in the literature to this data and compare these models in terms of model fit.
+
+
