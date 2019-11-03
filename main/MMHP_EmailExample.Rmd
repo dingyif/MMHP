@@ -462,7 +462,8 @@ A Hawkes process is not able to capture the nature of this data.
 
 
 Comparing to the MMPP model.
-```{r,eval=FALSE}
+```{r,eval=run_stan}
+# currently not working...
 a = as.matrix(diff_times, nrow = 1, ncol = length(diff_times))
 
 fit_mmpp <- stan("C:/Users/owenw/Documents/MMHP_Paper/lib/mmpp_continuous.stan",
@@ -478,7 +479,7 @@ fit_mmpp <- stan("C:/Users/owenw/Documents/MMHP_Paper/lib/mmpp_continuous.stan",
 sim_mmpp <- rstan::extract(fit_mmpp)
 
 source("C:/Users/owenw/Documents/MMHP_Paper/lib/mmpp.R")
-source("C:/Users/owenw/Documents/MMHP_Analysis/lib/mmpp.R")
+#source("C:/Users/owenw/Documents/MMHP_Analysis/lib/mmpp.R")
 
 # new modified MMPP latent state Oct 3rd ####
 param_mmpp_temp <- rep(list(),2000)
@@ -531,3 +532,113 @@ for(current_sim in 1:2000){
 
 
 ```
+
+We can then plot the inferred latent state from this model.
+
+```{r, eval=run_stan}
+ztv_mmpp <- t(ifelse(apply(state_array_list_mmpp,c(1),function(x) sum(x==1)) >1000,rep(1,2000),rep(2,2000)))
+current_event_time = time_vec
+
+time.segment <- seq(0,termination_time,length.out=10000)
+time.segment.delta <- time.segment[2]-time.segment[1]
+
+plot(0,0,xlim=c(-0.2,x_lim),ylim=c(-0.2,1.2), type="n",
+     xlab="Time (Days)",ylab="",xaxt="n",yaxt="n",cex.lab=0.5,bty="n")
+#title("(a) MMPP",line=1,cex.main=2)
+axis(2,at=c(1,2),labels=FALSE,cex.lab=0.5,las=2,lwd=0,lwd.ticks=0)
+axis(1,at=seq(0,x_lim,20),labels=FALSE,cex.lab=2,las=1,lwd=.3,lwd.ticks=0.5)
+text(-9.5, y=c(0,1), labels=paste(c("state","state"),c(0,1)," "), cex=0.4, srt=0, xpd=TRUE)
+text(-2, y=1.3, labels="Inferred latent state", cex=0.5, srt=0, xpd=TRUE)
+text(seq(0,x_lim,20), y=-0.55, labels=seq(0,x_lim,20), cex=0.75, srt=0, xpd=TRUE)
+segments(x0=0,x1=termination_time,y0=1,col="lightgrey",lwd=2)
+segments(x0=0,x1=termination_time,y0=0,col="lightgrey",lwd=2)
+segments(x0=0,x1=termination_time,y0=0.5,col="darkgrey",lwd=1,lty=2)
+#segments(x0=clean_data$observation_change,y0=0,y1=1,col='red')
+
+
+
+current_event_time <- time_vec
+
+
+#prob <- apply(state_array_list_mmpp,1,function(x) sum(x==1)/2000)
+points(current_event_time,2-ztv_mmpp,pch=4,col="black",lwd=1,cex=0.75)
+
+## plot interpolated state
+time_segment <- seq(0,termination_time,length.out=no_segments)#+delta.x
+plot.mean <- apply(interpolation_array_list_mmpp,1,mean)
+plot.sd <- apply(interpolation_array_list_mmpp,1,sd)
+lines(plot.mean~time_segment,type="l",col="blue",lwd=2)
+polygon(c(time_segment,rev(time_segment)),
+        c(ifelse(plot.mean-plot.sd<0,rep(0,length(plot.mean)),plot.mean-plot.sd),
+          rev(ifelse(plot.mean+plot.sd>1,rep(1,length(plot.mean)),plot.mean+plot.sd))),
+        col=rgb(0,0,225,alpha=50,maxColorValue=255),border=FALSE)
+#title("(a) MMPP",line=0.35,cex.main=0.5)
+
+bw.used = 0.1
+density.event=density(time_vec, bw=bw.used)
+density.event$y=(density.event$y)/max(density.event$y) 
+lines(density.event, col=2)
+
+
+```
+
+
+Performing model evaluation, as before.
+
+```{r, eval=run_stan}
+par(mfrow=c(1,2))
+
+lambda0_mean_mmpp <- mean(sim_mmpp$lambda0)
+c_mean_mmpp <- mean(sim_mmpp$c) 
+q1_mean_mmpp <- mean(sim_mmpp$q1)
+q2_mean_mmpp <- mean(sim_mmpp$q2)
+
+params_mean_mmpp <- list(lambda0 = lambda0_mean_mmpp,
+                         c = c_mean_mmpp,
+                         q1 = q1_mean_mmpp,
+                         q2 = q2_mean_mmpp)
+
+prob <- apply(state_array_list_mmpp,1,function(x) sum(x==1)/2000)
+
+MMPP_comp <- mmppCompensator(params =  params_mean_mmpp, t = c(0,time_vec),pzt = prob)
+
+ks.test(MMPP_comp,"pexp")
+
+p <- ppoints(100) 
+
+q <- quantile(MMPP_comp,p=p,na.rm=TRUE) # percentiles of the sample distribution
+
+
+
+plot(qexp(p),q, xlab="",ylab="",cex.lab=axis_size,
+     pch=1,cex=0.25,col="Black",ylim=c(0,5),xlim=c(0,5), main = "", bty="n",
+     yaxt ="n", xaxt = "n")
+axis(1,at=seq(0,4,1),labels=FALSE,cex.lab=axis_tick,las=2,lwd=axis_lwd,lwd.ticks=1)
+axis(2, at=seq(0,5,1),labels=FALSE,cex.lab = axis_tick,las=2,lwd=axis_lwd,lwd.ticks = 1)
+text(x=2,y=-0.5,labels = "Theoretical Quantiles", cex = 0.65,srt = 0, xpd = TRUE )
+title(ylab="Empirical Quantiles", cex.lab =0.65,line = 0.25)
+#text(x= 1.5, y = 5.5,labels="MMPP Compensator", cex=title_size, srt=0, xpd=TRUE)
+
+qqline(q, distribution=qexp,col="Red", lty=1, lwd=1)
+
+curve(pexp(x,1), min(MMPP_comp),max(MMPP_comp),col="Black",
+      #xlab="Compensator",
+      xlab = "",
+      ylab="CDF",cex.lab=axis_size, cex=axis_size,
+      xaxt = "n", yaxt = "n", bty ="L")
+axis(1,at=seq(0,6,1),labels=FALSE,cex.lab=axis_tick,las=2,lwd=axis_lwd,lwd.ticks=1)
+axis(2, at=seq(0,1,0.25),labels=FALSE,cex.lab = axis_tick,las=2,lwd=axis_lwd,lwd.ticks = 1)
+text(seq(0,6,1), y=-.1, labels=seq(0,6,1), cex=axis_size, srt=0, xpd=TRUE)
+text(seq(0,1,0.25),x=-0.75,labels=seq(0,1,0.25),cex=axis_size,srt=0,xpd=TRUE)
+text(x=2.5,y=-0.25,labels = "Compensator", cex = 0.5,srt = 0, xpd = TRUE )
+plot(ecdf(MMPP_comp), add=TRUE, do.points=FALSE, col.01line = NULL, verticals=TRUE,col="Red", lwd=1.5, ylim=c(0,1))
+legend(x=2.5,y=0.4,c("Exponential CDF","Empirical CDF"),lty=1,lwd=2,col=c("Black","Red"),
+       bty="n",cex=0.5)
+
+
+
+
+```
+
+
+This indicates that this model also struggles to capture the dynamics of these interactions.
