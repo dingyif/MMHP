@@ -9,7 +9,10 @@ Modeling event dynamics is central to many disciplines. Patterns in observed eve
 The structure of this repository is as follows:
 
 - code
-	- `main.Rmd`: the detailed R scripts withe explanation that to generate the results shown in the paper. 
+  - `Email_Example.Rmd`: a complete analysis of a single email interaction pair, demonstrating the models discussed
+  - `Email_Example.html` :[preview](https://htmlpreview.github.io/?https://github.com/wendy9217/MMHP/blob/master/code/Email_Example.html)
+
+	- `main.Rmd`: detailed R scripts describing the thorough analysis of mice interaction data described in the paper. 
 	- `main.html`: [preview](https://htmlpreview.github.io/?https://github.com/wendy9217/MMHP/blob/master/code/main.html)
 
 - lib
