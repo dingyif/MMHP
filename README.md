@@ -12,8 +12,8 @@ The structure of this repository is as follows:
   - `Email_Example.Rmd`: a complete analysis of a single email interaction pair, demonstrating the models discussed
   - `Email_Example.html` :[preview](https://htmlpreview.github.io/?https://github.com/wendy9217/MMHP/blob/master/code/Email_Example.html)
 
-	- `main.Rmd`: detailed R scripts describing the thorough analysis of mice interaction data described in the paper. 
-	- `main.html`: [preview](https://htmlpreview.github.io/?https://github.com/wendy9217/MMHP/blob/master/code/main.html)
+  - `main.Rmd`: detailed R scripts describing the thorough analysis of mice interaction data described in the paper. 
+  - `main.html`: [preview](https://htmlpreview.github.io/?https://github.com/wendy9217/MMHP/blob/master/code/main.html)
 
 - lib
 	- Rcode: directory containing the R functions that are called from `main.Rmd` scripts. 
